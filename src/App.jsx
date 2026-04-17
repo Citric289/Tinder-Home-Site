@@ -1363,18 +1363,13 @@ function Landing({ onSelect }) {
           position: "absolute",
           top: 0, left: 0, right: 0,
           textAlign: "center",
-          padding: "44px 24px 36px",
+          padding: "16px 24px",
           zIndex: 10,
           pointerEvents: "none",
           opacity: selected ? 0 : 1,
           transition: "opacity 0.25s ease",
         }}>
-          <p style={{
-            fontFamily: L.sans, fontSize: 9, color: "rgba(255,255,255,0.32)",
-            letterSpacing: "0.32em", textTransform: "uppercase", margin: "0 0 12px", fontWeight: 600,
-          }}>Real Estate · Two Markets · One Agent</p>
-          <img src={tinderHomeLogo} alt="Tinder Home" style={{ height: "clamp(80px, 12vw, 160px)", width: "auto", display: "block", margin: "0 auto" }} />
-          <div style={{ width: 28, height: 1, background: L.gold, margin: "16px auto 0" }} />
+          <img src={tinderHomeLogo} alt="Tinder Home" style={{ height: "clamp(75px, 10vw, 125px)", width: "auto", display: "block", margin: "0 auto" }} />
         </div>
 
         {/* Split panels — fill full viewport height */}
