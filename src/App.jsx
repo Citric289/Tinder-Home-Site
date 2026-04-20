@@ -10,7 +10,7 @@ const L = {
   taupe:      "#F5F1ED",
   charcoal:   "#2D2D2D",
   slate:      "#64748B",
-  slateLight: "#94A3B8",
+  slateLig`ht: "#94A3B8",
   gold:       "#D4AF37",
   goldMuted:  "rgba(212,175,55,0.18)",
   border:     "#E5E5E5",
@@ -125,6 +125,47 @@ const GLOBAL_CSS = `
   }
   @media (prefers-reduced-motion: reduce) {
     .lux-fade { animation: none !important; }
+  }
+
+  /* Mortgage calculator sliders */
+  .lux-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: rgba(45,45,45,0.18);
+    outline: none;
+    cursor: pointer;
+    border-radius: 2px;
+    margin: 0;
+    padding: 0;
+  }
+  .lux-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #2D2D2D;
+    border: 2px solid #D4AF37;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    transition: transform 0.15s ease;
+  }
+  .lux-range::-webkit-slider-thumb:hover { transform: scale(1.08); }
+  .lux-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #2D2D2D;
+    border: 2px solid #D4AF37;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+  }
+  .lux-range::-moz-range-track {
+    background: rgba(45,45,45,0.18);
+    height: 2px;
+    border-radius: 2px;
   }
 
   /* Responsive */
@@ -383,7 +424,7 @@ function Nav({ activeTheme, onSwitch, onHome, scrolled }) {
       </button>
       {/* Links */}
       <div className="lux-nav-links" style={{ display: "flex", alignItems: "center", gap: 36 }}>
-        {["About", "Neighborhoods", "Testimonials", "Blog", "Contact"].map(item => (
+        {["About", "Neighborhoods", "Testimonials", "Blog", "Calculator", "Contact"].map(item => (
           <a key={item} href={`#${item.toLowerCase()}`} style={{
             fontFamily: L.sans,
             fontSize: 10,
@@ -965,6 +1006,151 @@ function BlogCard({ post, i }) {
 }
 
 // ─── VALUATION ───────────────────────────────────────────────────────────────
+// ─── MORTGAGE CALCULATOR ────────────────────────────────────────────────────
+function Calculator() {
+  const headRef = useFadeIn(0);
+  const gridRef = useFadeIn(0.08);
+
+  const [price, setPrice]         = useState(1450000);
+  const [downPct, setDownPct]     = useState(20);
+  const [rate, setRate]           = useState(6.5);
+  const [termYears, setTermYears] = useState(30);
+
+  const downPayment       = Math.round(price * downPct / 100);
+  const loan              = price - downPayment;
+  const monthlyRate       = rate / 100 / 12;
+  const numPayments       = termYears * 12;
+  const principalInterest = monthlyRate === 0
+    ? loan / numPayments
+    : (loan * monthlyRate * Math.pow(1 + monthlyRate, numPayments))
+      / (Math.pow(1 + monthlyRate, numPayments) - 1);
+  const propertyTax       = price * 0.018 / 12; // 1.8%/yr
+  const insurance         = price * 0.004 / 12; // 0.4%/yr
+  const total             = principalInterest + propertyTax + insurance;
+  const lifetimeInterest  = principalInterest * numPayments - loan;
+
+  const fmtUSD     = n => `$${Math.round(n).toLocaleString("en-US")}`;
+  const fmtCompact = n => {
+    if (n >= 1_000_000) {
+      const m = n / 1_000_000;
+      return `$${(Math.round(m * 100) / 100).toString()}M`;
+    }
+    if (n >= 1000) return `$${Math.round(n / 1000)}K`;
+    return `$${Math.round(n)}`;
+  };
+
+  const piPct  = (principalInterest / total) * 100;
+  const taxPct = (propertyTax / total) * 100;
+  const insPct = (insurance / total) * 100;
+
+  return (
+    <section id="calculator" className="lux-section" style={{ padding: "120px 80px", background: L.cream }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+
+        <div ref={headRef} className="lux-fade" style={{ textAlign: "center", marginBottom: 72 }}>
+          <Eyebrow>Plan Your Purchase</Eyebrow>
+          <SectionHeading center>Mortgage Calculator</SectionHeading>
+          <GoldRule center />
+          <p style={{ fontFamily: L.sans, fontSize: 16, color: L.slate, maxWidth: 520, margin: "0 auto", lineHeight: 1.85, fontWeight: 300 }}>
+            A quick estimate of your all-in monthly payment — adjust any field to see how it changes.
+          </p>
+        </div>
+
+        <div ref={gridRef} className="lux-fade lux-val-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "start" }}>
+
+          {/* Inputs */}
+          <div>
+            <SliderRow label="Home price"     value={fmtUSD(price)}                                min={200000} max={5000000} step={10000} val={price}     onChange={setPrice} />
+            <SliderRow label="Down payment"   value={`${downPct}%  ·  ${fmtCompact(downPayment)}`} min={0}      max={50}      step={1}     val={downPct}   onChange={setDownPct} />
+            <SliderRow label="Interest rate"  value={`${rate.toFixed(2)}%`}                        min={2}      max={10}      step={0.05}  val={rate}      onChange={setRate} />
+            <SliderRow label="Term"           value={`${termYears} years`}                         min={10}     max={30}      step={5}     val={termYears} onChange={setTermYears} last />
+          </div>
+
+          {/* Results */}
+          <div>
+            {/* Headline callout */}
+            <div style={{
+              background: `radial-gradient(ellipse at 78% 28%, rgba(212,175,55,0.10) 0%, transparent 55%), ${L.charcoal}`,
+              padding: "44px 48px",
+              textAlign: "center",
+              marginBottom: 44,
+            }}>
+              <p style={{
+                fontFamily: L.sans, fontSize: 10, color: "rgba(255,255,255,0.55)",
+                letterSpacing: "0.26em", textTransform: "uppercase", fontWeight: 600, margin: "0 0 14px",
+              }}>Estimated Monthly</p>
+              <p style={{
+                fontFamily: L.serif, fontSize: "clamp(48px, 5vw, 72px)",
+                color: L.gold, margin: "0 0 12px", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.01em",
+              }}>{fmtUSD(total)}</p>
+              <p style={{
+                fontFamily: L.sans, fontSize: 11, color: "rgba(255,255,255,0.45)",
+                letterSpacing: "0.14em", margin: 0, fontWeight: 400,
+              }}>All-in · P&amp;I + tax + insurance</p>
+            </div>
+
+            {/* Breakdown bars */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+              <BreakdownBar label="Principal & interest" value={fmtUSD(principalInterest)} pct={piPct} />
+              <BreakdownBar label="Property tax (est.)"  value={fmtUSD(propertyTax)}        pct={taxPct} />
+              <BreakdownBar label="Insurance (est.)"     value={fmtUSD(insurance)}          pct={insPct} />
+            </div>
+
+            {/* Footer summary */}
+            <div style={{ height: 1, background: "rgba(45,45,45,0.12)", margin: "32px 0 20px" }} />
+            <p style={{ fontFamily: L.sans, fontSize: 12, color: L.charcoal, fontWeight: 400, margin: 0, letterSpacing: "0.02em" }}>
+              Loan amount <span style={{ color: L.gold, fontWeight: 600 }}>{fmtUSD(loan)}</span>
+              {"   ·   "}
+              Lifetime interest <span style={{ color: L.gold, fontWeight: 600 }}>{fmtUSD(lifetimeInterest)}</span>
+            </p>
+            <p style={{ fontFamily: L.sans, fontSize: 11, color: L.slateLight, fontWeight: 300, margin: "16px 0 0", letterSpacing: "0.02em", lineHeight: 1.65 }}>
+              Estimates only. Property tax assumed at 1.8%/yr and insurance at 0.4%/yr of home value. Actual figures vary by location, lender, and coverage.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SliderRow({ label, value, min, max, step, val, onChange, last = false }) {
+  return (
+    <div style={{
+      paddingBottom:  last ? 0 : 28,
+      borderBottom:   last ? "none" : `1px solid rgba(45,45,45,0.10)`,
+      marginBottom:   last ? 0 : 28,
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 18 }}>
+        <span style={{ fontFamily: L.sans,  fontSize: 13, color: L.charcoal, fontWeight: 400, letterSpacing: "0.02em" }}>{label}</span>
+        <span style={{ fontFamily: L.serif, fontSize: 18, color: L.charcoal, fontWeight: 400 }}>{value}</span>
+      </div>
+      <input
+        type="range"
+        className="lux-range"
+        min={min} max={max} step={step} value={val}
+        onChange={e => onChange(parseFloat(e.target.value))}
+        aria-label={label}
+      />
+    </div>
+  );
+}
+
+function BreakdownBar({ label, value, pct }) {
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+        <span style={{ fontFamily: L.sans, fontSize: 13, color: L.charcoal, fontWeight: 400 }}>{label}</span>
+        <span style={{ fontFamily: L.sans, fontSize: 14, color: L.charcoal, fontWeight: 600 }}>{value}</span>
+      </div>
+      <div style={{ height: 4, background: "rgba(45,45,45,0.08)", borderRadius: 2, overflow: "hidden" }}>
+        <div style={{ width: `${pct}%`, height: "100%", background: L.gold, transition: "width 0.3s ease" }} />
+      </div>
+    </div>
+  );
+}
+
+// ─── VALUATION ───────────────────────────────────────────────────────────────
 function Valuation({ theme, activeTheme }) {
   const [fields, setFields] = useState({ address: "", name: "", email: "", phone: "" });
   const [status, setStatus] = useState("idle");
@@ -1296,7 +1482,7 @@ function Footer({ theme }) {
         {/* Navigate */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <p style={{ fontFamily: L.sans, fontSize: 10, color: "rgba(255,255,255,0.38)", letterSpacing: "0.18em", textTransform: "uppercase", margin: "0 0 4px", fontWeight: 600 }}>Navigate</p>
-          {["About", "Neighborhoods", "Testimonials", "Blog", "Contact"].map(item => (
+          {["About", "Neighborhoods", "Testimonials", "Blog", "Calculator", "Contact"].map(item => (
             <a key={item} href={`#${item.toLowerCase()}`} style={{
               fontFamily: L.sans,
               fontSize: 13,
@@ -1548,6 +1734,7 @@ export default function CraigTinderRealEstate() {
         <Neighborhoods theme={theme} />
         <Testimonials />
         <Blog theme={theme} />
+        <Calculator />
         <Valuation theme={theme} activeTheme={activeTheme} />
         <Contact theme={theme} activeTheme={activeTheme} />
         <Footer theme={theme} />
