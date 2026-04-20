@@ -10,7 +10,7 @@ const L = {
   taupe:      "#F5F1ED",
   charcoal:   "#2D2D2D",
   slate:      "#64748B",
-  slateLig`ht: "#94A3B8",
+  slateLight: "#94A3B8",
   gold:       "#D4AF37",
   goldMuted:  "rgba(212,175,55,0.18)",
   border:     "#E5E5E5",
