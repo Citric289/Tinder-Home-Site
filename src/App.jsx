@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, createContext, useContext } from "react";
+import ReactMarkdown from "react-markdown";
 import blakeLogo from "./blake-logo.png";
 import tinderHomeLogo from "./Tinder Home.png";
 import craigPhoto from "./craig-tinder-photo.jpg";
+import { POSTS, POSTS_BY_MARKET, getPostBySlug } from "./blog/posts";
 
 // ─── LUXURY DESIGN TOKENS ──────────────────────────────────────────────────
 const L = {
@@ -36,11 +38,6 @@ const THEMES = {
       { name: "NW Chicago Neighborhoods", desc: "Edison Park, Norwood Park, and Jefferson Park blend city energy with a tight-knit, small-town feel." },
       { name: "North Suburbs", desc: "Glenview, Northbrook, and Deerfield — consistently ranked among Illinois' best places to live and raise a family." },
     ],
-    blogPosts: [
-      { title: "2026 Chicago Metro Market Outlook", excerpt: "What rising inventory and shifting rates mean for buyers and sellers across the greater Chicago area this spring.", date: "April 2026" },
-      { title: "City vs. Suburbs: A Greater Chicago Buyer's Guide", excerpt: "Weighing walkability, school districts, and commute times? Here's how to choose the right community for your lifestyle.", date: "March 2026" },
-      { title: "Preparing Your Home for a Chicago Winter Sale", excerpt: "Curb appeal doesn't stop when the snow falls. Here's how to make your listing shine in the cold months.", date: "February 2026" },
-    ],
   },
   florida: {
     name: "Florida",
@@ -57,11 +54,6 @@ const THEMES = {
       { name: "Dunedin & Safety Harbor", desc: "Charming downtowns, waterfront parks, and a relaxed coastal lifestyle just minutes from the beach." },
       { name: "St. Petersburg", desc: "A thriving arts scene, waterfront dining, and one of Florida's fastest-growing real estate markets." },
       { name: "Palm Harbor & Tarpon Springs", desc: "Top-rated schools, lush neighborhoods, and a welcoming community — a favorite for families relocating from the Midwest." },
-    ],
-    blogPosts: [
-      { title: "Clearwater Area: The Market to Watch in 2026", excerpt: "From Clearwater Beach to Dunedin, discover why Pinellas County continues to attract buyers from across the country.", date: "April 2026" },
-      { title: "Relocating from Chicago to Clearwater", excerpt: "A practical guide for Chicago-area families making the move — taxes, schools, and Gulf Coast lifestyle.", date: "March 2026" },
-      { title: "Clearwater Market Update: Spring 2026", excerpt: "Inventory is tight and demand is surging. Here's what buyers and sellers need to know right now.", date: "February 2026" },
     ],
   },
 };
@@ -586,22 +578,35 @@ function About() {
             <SectionHeading>A Different Kind of Agent</SectionHeading>
             <GoldRule />
             <p style={{ fontFamily: L.sans, fontSize: 17, color: L.slate, lineHeight: 1.95, margin: "0 0 24px", fontWeight: 300, letterSpacing: "0.02em" }}>
-              Craig Tinder has spent over two decades navigating two of America's most distinct real estate markets — the greater Chicago area and Florida's Clearwater coast. That dual-market expertise gives clients a rare advantage: an agent who understands both where you're coming from and where you're going.
+              Before real estate, Craig spent nearly a decade as a therapist, social worker, and college lecturer — backed by a Master of Arts from the University of Chicago. That foundation in listening, reading people, and navigating high-stakes moments shapes how he approaches every transaction today.
             </p>
             <p style={{ fontFamily: L.sans, fontSize: 17, color: L.slate, lineHeight: 1.95, margin: "0 0 52px", fontWeight: 300, letterSpacing: "0.02em" }}>
-              Every client gets Craig's direct line. No hand-offs, no assistants — just honest, expert guidance from first conversation to final closing.
+              For 25 years he has applied that perspective across two of America's most distinct markets — the greater Chicago area, where he's closed 149+ sales in Park Ridge alone, and Florida's Gulf Coast. Whether it's a luxury sale, a first home, or a Midwest-to-Sunbelt relocation, you get Craig's direct line — no hand-offs, no assistants.
             </p>
 
             {/* Clean stats row */}
-            <div style={{ display: "flex", gap: 52, flexWrap: "wrap", marginBottom: 52 }}>
+            <div style={{ display: "flex", gap: 52, flexWrap: "wrap", marginBottom: 48 }}>
               {[
-                { value: "$245M+",    label: "In Real Estate Sales" },
-                { value: "25 Years",  label: "Market Experience" },
-                { value: "2 Markets", label: "Chicago & Gulf Coast" },
+                { value: "$245M+", label: "In Real Estate Sales" },
+                { value: "385+",   label: "Closed Transactions" },
+                { value: "149+",   label: "Sales In Park Ridge" },
               ].map((item, i) => (
                 <div key={i}>
                   <p style={{ fontFamily: L.serif, fontSize: "clamp(22px, 2vw, 30px)", color: L.charcoal, margin: "0 0 5px", fontWeight: 400 }}>{item.value}</p>
                   <p style={{ fontFamily: L.sans, fontSize: 10, color: L.slateLight, margin: 0, letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600 }}>{item.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Credentials & Recognition */}
+            <div style={{ borderTop: `1px solid ${L.border}`, paddingTop: 36, display: "flex", gap: 64, flexWrap: "wrap" }}>
+              {[
+                { label: "Designations", value: "CRS  ·  CNE  ·  Luxury Properties Specialist" },
+                { label: "Recognition",  value: "Rolex Award  ·  5× Centurion  ·  Multi-Year Masters Club" },
+              ].map((item, i) => (
+                <div key={i} style={{ minWidth: 220 }}>
+                  <p style={{ fontFamily: L.sans, fontSize: 10, color: L.slateLight, margin: "0 0 10px", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 700 }}>{item.label}</p>
+                  <p style={{ fontFamily: L.sans, fontSize: 13, color: L.charcoal, margin: 0, fontWeight: 400, lineHeight: 1.7, letterSpacing: "0.02em" }}>{item.value}</p>
                 </div>
               ))}
             </div>
@@ -922,8 +927,9 @@ function Testimonials() {
 }
 
 // ─── BLOG ────────────────────────────────────────────────────────────────────
-function Blog({ theme }) {
+function Blog({ activeTheme, onOpenPost }) {
   const headRef = useFadeIn(0);
+  const posts = POSTS_BY_MARKET[activeTheme] || [];
 
   return (
     <section id="blog" className="lux-section" style={{ padding: "120px 80px", background: L.cream }}>
@@ -937,8 +943,8 @@ function Blog({ theme }) {
           </p>
         </div>
         <div className="lux-card-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 3 }}>
-          {theme.blogPosts.map((post, i) => (
-            <BlogCard key={i} post={post} i={i} />
+          {posts.map((post, i) => (
+            <BlogCard key={post.slug} post={post} i={i} onOpen={() => onOpenPost(post.slug)} />
           ))}
         </div>
       </div>
@@ -946,61 +952,308 @@ function Blog({ theme }) {
   );
 }
 
-function BlogCard({ post, i }) {
+function BlogCard({ post, i, onOpen }) {
   const ref = useFadeIn(i * 0.08);
   const [hovered, setHovered] = useState(false);
   return (
     <article
       ref={ref}
       className="lux-fade"
+      onClick={onOpen}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen?.(); } }}
+      role="link"
+      tabIndex={0}
+      aria-label={`Read article: ${post.title}`}
       style={{
         background: L.white,
-        padding: "48px 40px",
-        cursor: "default",
+        padding: 0,
+        cursor: "pointer",
         transform: hovered ? "translateY(-5px)" : "translateY(0)",
-        transition: "transform 0.22s ease",
+        transition: "transform 0.22s ease, box-shadow 0.22s ease",
+        boxShadow: hovered ? "0 18px 40px -24px rgba(0,0,0,0.22)" : "none",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        outline: "none",
       }}
     >
+      {post.heroImage && (
+        <div style={{
+          width: "100%",
+          aspectRatio: "16 / 10",
+          backgroundImage: `url(${post.heroImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          transform: hovered ? "scale(1.02)" : "scale(1)",
+          transition: "transform 0.5s ease",
+        }} />
+      )}
+      <div style={{ padding: "40px 40px 44px" }}>
+        <p style={{
+          fontFamily: L.sans,
+          fontSize: 10,
+          color: L.slateLight,
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          fontWeight: 700,
+          margin: "0 0 20px",
+        }}>
+          {post.date}{post.readMinutes ? `  ·  ${post.readMinutes} min read` : ""}
+        </p>
+        <h3 style={{
+          fontFamily: L.serif,
+          fontSize: 22,
+          color: L.charcoal,
+          margin: "0 0 16px",
+          fontWeight: 400,
+          lineHeight: 1.38,
+          letterSpacing: "0.01em",
+        }}>{post.title}</h3>
+        <div style={{ width: 32, height: 1, background: L.border, margin: "0 0 20px" }} />
+        <p style={{
+          fontFamily: L.sans,
+          fontSize: 14,
+          color: L.slate,
+          lineHeight: 1.9,
+          margin: "0 0 32px",
+          fontWeight: 300,
+        }}>{post.excerpt}</p>
+        <span style={{
+          fontFamily: L.sans,
+          fontSize: 10,
+          color: hovered ? L.gold : L.slateLight,
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          fontWeight: 700,
+          transition: "color 0.22s ease",
+          borderBottom: `1px solid ${hovered ? L.gold : "transparent"}`,
+          paddingBottom: 2,
+        }}>Read Article →</span>
+      </div>
+    </article>
+  );
+}
+
+// ─── MARKDOWN RENDERING ──────────────────────────────────────────────────────
+// Maps the Markdown a post produces onto the site's existing article styles, so
+// posts written in the CMS look identical to the old hand-built block layout.
+// A context flag lets paragraphs inside a blockquote pick up the pull-quote
+// styling instead of the default body-paragraph styling.
+const InQuote = createContext(false);
+
+// Paragraphs render as body text by default, or as the pull-quote style when
+// nested inside a blockquote. Declared as a named component so it's a valid
+// place to call the useContext hook.
+function MarkdownParagraph({ children }) {
+  const inQuote = useContext(InQuote);
+  if (inQuote) {
+    return (
       <p style={{
-        fontFamily: L.sans,
-        fontSize: 10,
-        color: L.slateLight,
-        letterSpacing: "0.18em",
-        textTransform: "uppercase",
-        fontWeight: 700,
-        margin: "0 0 20px",
-      }}>{post.date}</p>
-      <h3 style={{
-        fontFamily: L.serif,
-        fontSize: 22,
-        color: L.charcoal,
-        margin: "0 0 16px",
-        fontWeight: 400,
-        lineHeight: 1.38,
-        letterSpacing: "0.01em",
-      }}>{post.title}</h3>
-      <div style={{ width: 32, height: 1, background: L.border, margin: "0 0 20px" }} />
-      <p style={{
-        fontFamily: L.sans,
-        fontSize: 14,
-        color: L.slate,
-        lineHeight: 1.9,
-        margin: "0 0 32px",
-        fontWeight: 300,
-      }}>{post.excerpt}</p>
-      <span style={{
-        fontFamily: L.sans,
-        fontSize: 10,
-        color: hovered ? L.gold : L.slateLight,
-        letterSpacing: "0.18em",
-        textTransform: "uppercase",
-        fontWeight: 700,
-        transition: "color 0.22s ease",
-        borderBottom: `1px solid ${hovered ? L.gold : "transparent"}`,
-        paddingBottom: 2,
-      }}>Read Article →</span>
+        fontFamily: L.serif, fontSize: 22, fontStyle: "italic", color: L.charcoal,
+        lineHeight: 1.5, fontWeight: 400, margin: 0,
+      }}>{children}</p>
+    );
+  }
+  return (
+    <p style={{
+      fontFamily: L.sans, fontSize: 17, color: L.charcoal, lineHeight: 1.78,
+      fontWeight: 300, margin: "0 0 22px",
+    }}>{children}</p>
+  );
+}
+
+const mdComponents = {
+  h2: ({ children }) => (
+    <h2 style={{
+      fontFamily: L.serif, fontSize: 28, color: L.charcoal, fontWeight: 400,
+      lineHeight: 1.25, letterSpacing: "-0.005em", margin: "48px 0 20px",
+    }}>{children}</h2>
+  ),
+  p: MarkdownParagraph,
+  ul: ({ children }) => (
+    <ul style={{ margin: "0 0 28px", padding: "0 0 0 22px", listStyle: "none" }}>{children}</ul>
+  ),
+  li: ({ children }) => (
+    <li style={{
+      position: "relative", fontFamily: L.sans, fontSize: 16, color: L.charcoal,
+      lineHeight: 1.78, fontWeight: 300, margin: "0 0 12px", paddingLeft: 18,
+      listStyle: "none",
+    }}>
+      <span style={{ position: "absolute", left: 0, top: "0.7em", width: 8, height: 1, background: L.gold }} />
+      {children}
+    </li>
+  ),
+  blockquote: ({ children }) => (
+    <InQuote.Provider value={true}>
+      <blockquote style={{
+        margin: "40px 0", padding: "8px 0 8px 28px", borderLeft: `2px solid ${L.gold}`,
+      }}>{children}</blockquote>
+    </InQuote.Provider>
+  ),
+  a: ({ children, href }) => (
+    <a href={href} style={{ color: L.gold, textDecoration: "none", borderBottom: `1px solid ${L.gold}` }}>{children}</a>
+  ),
+};
+
+// ─── BLOG POST (full article view) ──────────────────────────────────────────
+function BlogPost({ post, activeTheme, onBack, onOpenPost }) {
+  const headRef = useFadeIn(0);
+  const bodyRef = useFadeIn(0.08);
+
+  // Two most-recent posts in the same market, excluding the current one
+  const related = (POSTS_BY_MARKET[post.market] || [])
+    .filter(p => p.slug !== post.slug)
+    .slice(0, 2);
+
+  return (
+    <article style={{ background: L.white }}>
+      {/* Hero */}
+      <header style={{
+        position: "relative",
+        height: "62vh",
+        minHeight: 460,
+        display: "flex",
+        alignItems: "flex-end",
+        overflow: "hidden",
+        background: L.charcoal,
+      }}>
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: `url(${post.heroImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }} />
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(18,18,18,0.32) 0%, rgba(18,18,18,0.78) 100%)",
+        }} />
+        <div ref={headRef} className="lux-fade lux-hero-content" style={{
+          position: "relative",
+          maxWidth: 880,
+          width: "100%",
+          margin: "0 auto",
+          padding: "0 80px 88px",
+          color: "#fff",
+        }}>
+          <Eyebrow light>
+            {(activeTheme || post.market) === "florida" ? "Gulf Coast Intelligence" : "Chicago Intelligence"}
+          </Eyebrow>
+          <h1 style={{
+            fontFamily: L.serif,
+            fontSize: "clamp(34px, 4.4vw, 60px)",
+            margin: 0,
+            fontWeight: 400,
+            lineHeight: 1.12,
+            letterSpacing: "-0.01em",
+            color: "#fff",
+            maxWidth: 820,
+          }}>{post.title}</h1>
+          <p style={{
+            marginTop: 24,
+            fontFamily: L.sans,
+            fontSize: 11,
+            color: "rgba(255,255,255,0.7)",
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            fontWeight: 600,
+          }}>
+            {post.date}{post.readMinutes ? `  ·  ${post.readMinutes} min read` : ""}{"  ·  By Craig Tinder"}
+          </p>
+        </div>
+      </header>
+
+      {/* Body */}
+      <div ref={bodyRef} className="lux-fade" style={{
+        maxWidth: 760,
+        margin: "0 auto",
+        padding: "88px 32px 32px",
+      }}>
+        <button
+          onClick={onBack}
+          style={{
+            background: "none",
+            border: "none",
+            padding: 0,
+            margin: "0 0 48px",
+            fontFamily: L.sans,
+            fontSize: 10,
+            color: L.slate,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = L.gold}
+          onMouseLeave={e => e.currentTarget.style.color = L.slate}
+        >
+          ← All Articles
+        </button>
+
+        <ReactMarkdown components={mdComponents}>{post.body}</ReactMarkdown>
+
+        {/* Author footer */}
+        <div style={{
+          marginTop: 72,
+          padding: "40px 0 0",
+          borderTop: `1px solid ${L.border}`,
+          display: "flex",
+          gap: 24,
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}>
+          <img
+            src={craigPhoto}
+            alt="Craig Tinder"
+            style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+          />
+          <div style={{ flex: "1 1 240px" }}>
+            <p style={{ fontFamily: L.serif, fontSize: 18, color: L.charcoal, margin: "0 0 4px", fontWeight: 500 }}>Craig Tinder</p>
+            <p style={{ fontFamily: L.sans, fontSize: 13, color: L.slate, margin: 0, lineHeight: 1.6, fontWeight: 300 }}>
+              Twenty-five years guiding clients across the greater Chicago area and Florida's Gulf Coast. Former therapist and college lecturer — now a Park Ridge–based broker with $245M+ in career sales.
+            </p>
+          </div>
+          <a href="#contact" onClick={onBack} style={{
+            fontFamily: L.sans,
+            fontSize: 10,
+            color: L.charcoal,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            fontWeight: 700,
+            textDecoration: "none",
+            border: `1px solid ${L.charcoal}`,
+            padding: "13px 28px",
+            transition: "all 0.25s ease",
+          }}
+          className="lux-btn-dark"
+          >Work With Craig</a>
+        </div>
+      </div>
+
+      {/* Related */}
+      {related.length > 0 && (
+        <section style={{ background: L.cream, padding: "88px 32px 120px", marginTop: 96 }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 48 }}>
+              <Eyebrow>Keep Reading</Eyebrow>
+              <SectionHeading center>More Articles</SectionHeading>
+              <GoldRule center />
+            </div>
+            <div className="lux-card-grid" style={{
+              display: "grid",
+              gridTemplateColumns: `repeat(auto-fit, minmax(280px, 1fr))`,
+              gap: 3,
+            }}>
+              {related.map((p, i) => (
+                <BlogCard key={p.slug} post={p} i={i} onOpen={() => onOpenPost(p.slug)} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </article>
   );
 }
@@ -1683,17 +1936,59 @@ function Landing({ onSelect }) {
   );
 }
 
+// ─── ROUTING HELPERS ────────────────────────────────────────────────────────
+// Hash format: "#post/<slug>" routes to a full blog post.
+// Anything else (including "#blog", "#about", etc.) keeps the homepage rendered
+// so existing in-page anchor links still work.
+function readPostSlugFromHash() {
+  const h = (typeof window !== "undefined" ? window.location.hash : "").replace(/^#/, "");
+  if (h.startsWith("post/")) return h.slice(5);
+  return null;
+}
+
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 export default function CraigTinderRealEstate() {
-  const [activeTheme, setActiveTheme] = useState(null);
-  const [scrolled,    setScrolled]    = useState(false);
-  const [fading,      setFading]      = useState(false);
+  const [activeSlug, setActiveSlug] = useState(() => readPostSlugFromHash());
+  // Deep links to /#post/<slug> auto-pick the post's market so the page can render.
+  const [activeTheme, setActiveTheme] = useState(() => {
+    const slug = readPostSlugFromHash();
+    return slug ? getPostBySlug(slug)?.market ?? null : null;
+  });
+  const [scrolled, setScrolled] = useState(false);
+  const [fading,   setFading]   = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Sync activeSlug with the URL hash so deep links + back/forward work.
+  useEffect(() => {
+    const sync = () => setActiveSlug(readPostSlugFromHash());
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, []);
+
+  const openPost = (slug) => {
+    const p = getPostBySlug(slug);
+    if (!p) return;
+    if (p.market !== activeTheme) setActiveTheme(p.market);
+    setActiveSlug(slug);
+    if (window.location.hash !== `#post/${slug}`) {
+      window.history.pushState(null, "", `#post/${slug}`);
+    }
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
+
+  const closePost = () => {
+    setActiveSlug(null);
+    window.history.pushState(null, "", "#blog");
+    // Scroll to the Blog section once it's mounted again
+    setTimeout(() => {
+      document.getElementById("blog")?.scrollIntoView({ behavior: "instant", block: "start" });
+    }, 0);
+  };
 
   // Called from Landing — no fade-out needed, site fades in over the expanding panel
   const selectFromLanding = (key) => {
@@ -1707,6 +2002,11 @@ export default function CraigTinderRealEstate() {
     setFading(true);
     setTimeout(() => {
       setActiveTheme(key);
+      // Switching markets returns to the homepage of the new market
+      setActiveSlug(null);
+      if (window.location.hash.startsWith("#post/")) {
+        window.history.pushState(null, "", "#");
+      }
       window.scrollTo({ top: 0, behavior: "instant" });
       setTimeout(() => setFading(false), 50);
     }, 320);
@@ -1715,6 +2015,7 @@ export default function CraigTinderRealEstate() {
   if (!activeTheme) return <Landing onSelect={selectFromLanding} />;
 
   const theme = THEMES[activeTheme];
+  const activePost = activeSlug ? getPostBySlug(activeSlug) : null;
 
   return (
     <>
@@ -1727,16 +2028,22 @@ export default function CraigTinderRealEstate() {
         background: L.white,
         minHeight: "100vh",
       }}>
-        <Nav activeTheme={activeTheme} onSwitch={switchTheme} onHome={() => setActiveTheme(null)} scrolled={scrolled} />
-        <Hero theme={theme} />
-        <MarketPulse />
-        <About />
-        <Neighborhoods theme={theme} />
-        <Testimonials />
-        <Blog theme={theme} />
-        <Calculator />
-        <Valuation theme={theme} activeTheme={activeTheme} />
-        <Contact theme={theme} activeTheme={activeTheme} />
+        <Nav activeTheme={activeTheme} onSwitch={switchTheme} onHome={() => { setActiveSlug(null); setActiveTheme(null); }} scrolled={scrolled} />
+        {activePost ? (
+          <BlogPost post={activePost} activeTheme={activeTheme} onBack={closePost} onOpenPost={openPost} />
+        ) : (
+          <>
+            <Hero theme={theme} />
+            <MarketPulse />
+            <About />
+            <Neighborhoods theme={theme} />
+            <Testimonials />
+            <Blog activeTheme={activeTheme} onOpenPost={openPost} />
+            <Calculator />
+            <Valuation theme={theme} activeTheme={activeTheme} />
+            <Contact theme={theme} activeTheme={activeTheme} />
+          </>
+        )}
         <Footer theme={theme} />
       </div>
     </>

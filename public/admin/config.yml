@@ -1,0 +1,67 @@
+# ─── Sveltia CMS configuration ───────────────────────────────────────────────
+# This powers the no-code blog editor at /admin. It commits Markdown files to
+# the GitHub repo; Vercel then auto-deploys the site. The GitHub login is handled
+# by the serverless functions in /api (auth.js + callback.js). See ADMIN-SETUP.md.
+
+backend:
+  name: github
+  repo: Citric289/tinder-home-site
+  branch: main
+  # base_url = your live site's origin (it serves the /api login functions).
+  base_url: https://tinder-home-site.vercel.app
+  auth_endpoint: api/auth
+
+# Where uploaded photos are stored in the repo, and how they're referenced on
+# the live site.
+media_folder: "public/images/blog"
+public_folder: "/images/blog"
+
+# Used for the "View on site" links in the editor.
+site_url: https://tinder-home-site.vercel.app
+
+collections:
+  - name: blog
+    label: "Blog Posts"
+    label_singular: "Blog Post"
+    description: "Market Insights articles. Add, edit, or delete posts here."
+    folder: "content/blog"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    extension: md
+    format: yaml-frontmatter
+    preview_path: "#post/{{slug}}"
+    summary: "{{title}}  ·  {{market}}  ·  {{date}}"
+    sortable_fields: [date, title, market]
+    fields:
+      - { name: title, label: "Title", widget: string }
+      - name: market
+        label: "Market"
+        widget: select
+        options:
+          - { label: "Chicago", value: chicago }
+          - { label: "Florida", value: florida }
+        default: chicago
+      - name: date
+        label: "Date"
+        widget: string
+        hint: 'How it appears on the post, e.g. "April 2026".'
+      - name: readMinutes
+        label: "Read time (minutes)"
+        widget: number
+        value_type: int
+        min: 1
+        required: false
+        hint: "Optional. Shown next to the date, e.g. 5 min read."
+      - name: excerpt
+        label: "Excerpt"
+        widget: text
+        hint: "One- or two-sentence summary shown on the blog card."
+      - name: heroImage
+        label: "Hero Image"
+        widget: image
+        hint: "The large image at the top of the post and on its card."
+      - name: body
+        label: "Article Body"
+        widget: markdown
+        hint: "The article itself. Use Heading 2 for section titles."
