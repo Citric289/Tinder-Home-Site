@@ -8,7 +8,7 @@ backend:
   repo: Citric289/tinder-home-site
   branch: main
   # base_url = your live site's origin (it serves the /api login functions).
-  base_url: https://tinder-home-site.vercel.app
+  base_url: https://tinderhome.vercel.app
   auth_endpoint: api/auth
 
 # Where uploaded photos are stored in the repo, and how they're referenced on
@@ -17,7 +17,7 @@ media_folder: "public/images/blog"
 public_folder: "/images/blog"
 
 # Used for the "View on site" links in the editor.
-site_url: https://tinder-home-site.vercel.app
+site_url: https://tinderhome.vercel.app
 
 collections:
   - name: blog

@@ -17,7 +17,7 @@ There are three parts to this document:
 
 ## Part 1 — One-time setup (developer)
 
-> Current site URL used below: **https://tinder-home-site.vercel.app**
+> Current site URL used below: **https://tinderhome.vercel.app**
 > If your real Vercel production domain differs (check **Vercel → Project →
 > Settings → Domains**), use that instead — and update `base_url`/`site_url` in
 > [`public/admin/config.yml`](public/admin/config.yml) to match.
@@ -27,8 +27,8 @@ There are three parts to this document:
    (https://github.com/settings/developers).
 2. Fill in:
    - **Application name:** `Craig Tinder Site CMS`
-   - **Homepage URL:** `https://tinder-home-site.vercel.app`
-   - **Authorization callback URL:** `https://tinder-home-site.vercel.app/api/callback`
+   - **Homepage URL:** `https://tinderhome.vercel.app`
+   - **Authorization callback URL:** `https://tinderhome.vercel.app/api/callback`
 3. Click **Register application**.
 4. Copy the **Client ID**, then click **Generate a new client secret** and copy it.
 
@@ -46,7 +46,7 @@ Invite him: **GitHub repo → Settings → Collaborators → Add people** (he'll
 free GitHub account). He accepts the email invite — that's it.
 
 ### Done
-Visit `https://tinder-home-site.vercel.app/admin` and click **Login with GitHub**.
+Visit `https://tinderhome.vercel.app/admin` and click **Login with GitHub**.
 If it logs you into the editor, everything is wired correctly.
 
 ---
@@ -54,7 +54,7 @@ If it logs you into the editor, everything is wired correctly.
 ## Part 2 — How to use it (hand this to your dad)
 
 ### Logging in
-1. Go to **`https://tinder-home-site.vercel.app/admin`** (later: `craigtinder.com/admin`).
+1. Go to **`https://tinderhome.vercel.app/admin`** (later: `craigtinder.com/admin`).
 2. Click **Login with GitHub** and approve.
 
 ### Adding a blog post
