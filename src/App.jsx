@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, createContext, useContext } from "react";
+import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
 import ReactMarkdown from "react-markdown";
 import blakeLogo from "./blake-logo.png";
 import tinderHomeLogo from "./Tinder Home.png";
@@ -177,6 +177,12 @@ const GLOBAL_CSS = `
     .lux-stats { grid-template-columns: 1fr !important; }
     .lux-card-grid { grid-template-columns: 1fr !important; }
   }
+
+  /* Blog horizontal scroller — 3 cards per view on desktop, 2 on tablet, 1 on mobile */
+  .blog-track::-webkit-scrollbar { display: none; }
+  .blog-card { flex: 0 0 calc((100% - 6px) / 3); }
+  @media (max-width: 900px) { .blog-card { flex-basis: calc((100% - 3px) / 2); } }
+  @media (max-width: 600px) { .blog-card { flex-basis: 100%; } }
 `;
 
 // ─── MARKET DATA HOOK ───────────────────────────────────────────────────────
@@ -927,12 +933,69 @@ function Testimonials() {
 }
 
 // ─── BLOG ────────────────────────────────────────────────────────────────────
+// Posts arrive newest-first (sorted by date in blog/posts.js). They're shown in
+// a horizontal scroller — three at a time on desktop — matching the Testimonials
+// carousel. Arrows and dots appear only when there are more posts than fit.
 function Blog({ activeTheme, onOpenPost }) {
   const headRef = useFadeIn(0);
+  const trackRef = useRef(null);
   const posts = POSTS_BY_MARKET[activeTheme] || [];
+  const total = posts.length;
+
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [overflowing, setOverflowing] = useState(false);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  // Measure scroll position: which card leads the view, whether we can scroll
+  // further, and whether the track overflows at all.
+  const readState = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const x = track.scrollLeft;
+    setOverflowing(track.scrollWidth > track.clientWidth + 1);
+    setAtStart(x <= 1);
+    setAtEnd(x + track.clientWidth >= track.scrollWidth - 1);
+    // Closest card to the track's left edge (rect-based so it doesn't depend on
+    // offsetParent positioning).
+    const trackLeft = track.getBoundingClientRect().left;
+    let closest = 0;
+    let min = Infinity;
+    Array.from(track.children).forEach((card, i) => {
+      const dist = Math.abs(card.getBoundingClientRect().left - trackLeft);
+      if (dist < min) { min = dist; closest = i; }
+    });
+    setActiveIdx(closest);
+  }, []);
+
+  // Reset to the newest post and re-measure when the market changes or on resize.
+  useEffect(() => {
+    const track = trackRef.current;
+    if (track) track.scrollLeft = 0;
+    const raf = requestAnimationFrame(readState);
+    window.addEventListener("resize", readState);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", readState); };
+  }, [activeTheme, readState]);
+
+  function scrollToCard(idx) {
+    const track = trackRef.current;
+    const card = track?.children[idx];
+    if (!card) return;
+    // Align the card's left edge to the track's left edge.
+    const delta = card.getBoundingClientRect().left - track.getBoundingClientRect().left;
+    track.scrollTo({ left: track.scrollLeft + delta, behavior: "smooth" });
+  }
+  function prev() { scrollToCard(Math.max(0, activeIdx - 1)); }
+  function next() { scrollToCard(Math.min(total - 1, activeIdx + 1)); }
+
+  const arrowStyle = (disabled) => ({
+    background: "none", border: `1px solid ${L.border}`, width: 44, height: 44,
+    cursor: disabled ? "default" : "pointer", display: "flex", alignItems: "center",
+    justifyContent: "center", opacity: disabled ? 0.25 : 1, transition: "opacity 0.2s ease",
+  });
 
   return (
-    <section id="blog" className="lux-section" style={{ padding: "120px 80px", background: L.cream }}>
+    <section id="blog" className="lux-section" style={{ padding: "120px 80px", background: L.cream, overflow: "hidden" }}>
       <div style={{ maxWidth: 1400, margin: "0 auto" }}>
         <div ref={headRef} className="lux-fade" style={{ textAlign: "center", marginBottom: 72 }}>
           <Eyebrow>Intelligence</Eyebrow>
@@ -942,11 +1005,63 @@ function Blog({ activeTheme, onOpenPost }) {
             Craig's latest market analysis and local intelligence.
           </p>
         </div>
-        <div className="lux-card-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 3 }}>
+
+        {/* Scrollable track */}
+        <div
+          ref={trackRef}
+          onScroll={readState}
+          className="blog-track"
+          style={{
+            display: "flex",
+            gap: 3,
+            overflowX: "auto",
+            scrollSnapType: "x mandatory",
+            WebkitOverflowScrolling: "touch",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            paddingBottom: 4,
+          }}
+        >
           {posts.map((post, i) => (
-            <BlogCard key={post.slug} post={post} i={i} onOpen={() => onOpenPost(post.slug)} />
+            <div key={post.slug} className="blog-card" style={{ flexShrink: 0, scrollSnapAlign: "start" }}>
+              <BlogCard post={post} i={i} onOpen={() => onOpenPost(post.slug)} />
+            </div>
           ))}
         </div>
+
+        {/* Controls — only when there's more than one viewport of posts */}
+        {overflowing && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 28, marginTop: 48 }}>
+            <button onClick={prev} disabled={atStart} style={arrowStyle(atStart)} aria-label="Previous articles">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M9 2L4 7L9 12" stroke={L.charcoal} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            <div style={{ display: "flex", gap: 8 }}>
+              {posts.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => scrollToCard(i)}
+                  aria-label={`Go to article ${i + 1}`}
+                  style={{
+                    width: activeIdx === i ? 24 : 6,
+                    height: 6,
+                    background: activeIdx === i ? L.gold : L.border,
+                    border: "none", padding: 0, cursor: "pointer",
+                    transition: "width 0.3s ease, background 0.3s ease",
+                  }}
+                />
+              ))}
+            </div>
+
+            <button onClick={next} disabled={atEnd} style={arrowStyle(atEnd)} aria-label="Next articles">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M5 2L10 7L5 12" stroke={L.charcoal} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
