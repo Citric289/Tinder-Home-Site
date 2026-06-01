@@ -1,5 +1,5 @@
 ---
-title: 2026 Chicago Metro Market Outlook
+title: This is a test
 market: chicago
 date: April 2026
 readMinutes: 6
