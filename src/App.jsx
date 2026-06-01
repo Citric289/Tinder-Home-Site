@@ -3,7 +3,16 @@ import ReactMarkdown from "react-markdown";
 import blakeLogo from "./blake-logo.png";
 import tinderHomeLogo from "./Tinder Home.png";
 import craigPhoto from "./craig-tinder-photo.jpg";
-import { POSTS, POSTS_BY_MARKET, getPostBySlug } from "./blog/posts";
+import { POSTS, POSTS_BY_MARKET, getPostBySlug, postInMarket } from "./blog/posts";
+
+// Resolve a post's "market" frontmatter to a real theme key. "both" posts have
+// no theme of their own, so they default to Chicago when opened cold (e.g. a
+// deep link); when opened from a market they keep whichever market you're in.
+function marketToTheme(market) {
+  if (market === "chicago" || market === "florida") return market;
+  if (market === "both") return "chicago";
+  return null;
+}
 
 // ─── LUXURY DESIGN TOKENS ──────────────────────────────────────────────────
 const L = {
@@ -1217,8 +1226,9 @@ function BlogPost({ post, activeTheme, onBack, onOpenPost }) {
   const headRef = useFadeIn(0);
   const bodyRef = useFadeIn(0.08);
 
-  // Two most-recent posts in the same market, excluding the current one
-  const related = (POSTS_BY_MARKET[post.market] || [])
+  // Two most-recent posts in the market being browsed, excluding the current
+  // one. Falls back to the post's own market for "both" posts opened cold.
+  const related = (POSTS_BY_MARKET[activeTheme] || POSTS_BY_MARKET[marketToTheme(post.market)] || [])
     .filter(p => p.slug !== post.slug)
     .slice(0, 2);
 
@@ -2067,7 +2077,7 @@ export default function CraigTinderRealEstate() {
   // Deep links to /#post/<slug> auto-pick the post's market so the page can render.
   const [activeTheme, setActiveTheme] = useState(() => {
     const slug = readPostSlugFromHash();
-    return slug ? getPostBySlug(slug)?.market ?? null : null;
+    return slug ? marketToTheme(getPostBySlug(slug)?.market) : null;
   });
   const [scrolled, setScrolled] = useState(false);
   const [fading,   setFading]   = useState(false);
@@ -2088,7 +2098,9 @@ export default function CraigTinderRealEstate() {
   const openPost = (slug) => {
     const p = getPostBySlug(slug);
     if (!p) return;
-    if (p.market !== activeTheme) setActiveTheme(p.market);
+    // Only switch markets if the post isn't available in the current one.
+    // "both" posts are available everywhere, so they never force a switch.
+    if (!activeTheme || !postInMarket(p, activeTheme)) setActiveTheme(marketToTheme(p.market));
     setActiveSlug(slug);
     if (window.location.hash !== `#post/${slug}`) {
       window.history.pushState(null, "", `#post/${slug}`);

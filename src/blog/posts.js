@@ -44,9 +44,14 @@ export const POSTS = Object.entries(files)
   // Newest first — the homepage and "related" lists rely on this order.
   .sort((a, b) => dateValue(b.date) - dateValue(a.date));
 
+// A post belongs to a market if it targets that market specifically, or "both".
+export function postInMarket(post, market) {
+  return post.market === market || post.market === "both";
+}
+
 export const POSTS_BY_MARKET = {
-  chicago: POSTS.filter(p => p.market === "chicago"),
-  florida: POSTS.filter(p => p.market === "florida"),
+  chicago: POSTS.filter(p => postInMarket(p, "chicago")),
+  florida: POSTS.filter(p => postInMarket(p, "florida")),
 };
 
 export function getPostBySlug(slug) {

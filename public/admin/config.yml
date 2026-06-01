@@ -41,7 +41,9 @@ collections:
         options:
           - { label: "Chicago", value: chicago }
           - { label: "Florida", value: florida }
+          - { label: "Both Markets", value: both }
         default: chicago
+        hint: '"Both Markets" makes the post appear on the Chicago and Florida blogs.'
       - name: date
         label: "Date"
         widget: string
