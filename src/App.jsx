@@ -64,8 +64,8 @@ const FORMSPREE = {
     florida: "https://formspree.io/f/xzdkwwpe",
   },
   contact: {
-    chicago: "https://formspree.io/f/xvzvyljl", // replace with dedicated contact form ID
-    florida: "https://formspree.io/f/xzdkwwpe",  // replace with dedicated contact form ID
+    chicago: "https://formspree.io/f/mrevzbwp", // @properties (Chicago) contact form
+    florida: "https://formspree.io/f/xojzavoa", // Blake Real Estate (Florida) contact form
   },
 };
 
