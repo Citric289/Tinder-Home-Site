@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
 import ReactMarkdown from "react-markdown";
 import blakeLogo from "./blake-logo.png";
-import tinderHomeLogo from "./Tinder Home.png";
+import craigLogo from "./Craig Tinder logo.png";
 import craigPhoto from "./craig-tinder-photo.jpg";
 import { POSTS, POSTS_BY_MARKET, getPostBySlug, postInMarket } from "./blog/posts";
 import { GUIDES_BY_MARKET, getGuideBySlug, guideInMarket } from "./neighborhoods/guides";
@@ -364,7 +364,7 @@ function Nav({ activeTheme, onSwitch, onHome, scrolled }) {
         style={{ background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center" }}
         aria-label="Return to market selection"
       >
-        <img src={tinderHomeLogo} alt="Tinder Home" style={{ height: 116, width: "auto", display: "block" }} />
+        <img src={craigLogo} alt="Craig Tinder" style={{ height: 116, width: "auto", display: "block", filter: scrolled ? "none" : "brightness(0) invert(1)", transition: "filter 0.4s ease" }} />
       </button>
       {/* Links */}
       <div className="lux-nav-links" style={{ display: "flex", alignItems: "center", gap: 36 }}>
@@ -1899,7 +1899,7 @@ function Landing({ onSelect }) {
           opacity: selected ? 0 : 1,
           transition: "opacity 0.25s ease",
         }}>
-          <img src={tinderHomeLogo} alt="Tinder Home" style={{ height: "clamp(75px, 10vw, 125px)", width: "auto", display: "block", margin: "0 auto" }} />
+          <img src={craigLogo} alt="Craig Tinder" style={{ height: "clamp(75px, 10vw, 125px)", width: "auto", display: "block", margin: "0 auto", filter: "brightness(0) invert(1)" }} />
         </div>
 
         {/* Split panels — fill full viewport height */}
