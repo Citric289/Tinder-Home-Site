@@ -1,0 +1,38 @@
+# Craig Tinder Real Estate — crawler policy
+# Everything is public; we explicitly welcome search and AI crawlers.
+
+User-agent: *
+Allow: /
+
+# AI answer engines / model crawlers (named explicitly so there's no ambiguity)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://craigtinder.com/sitemap.xml
