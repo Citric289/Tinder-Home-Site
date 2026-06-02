@@ -1,0 +1,12 @@
+{
+  "heroStats": [
+    { "value": "$245M+", "label": "In Real Estate Sales" },
+    { "value": "25 Years", "label": "Serving Clients" },
+    { "value": "Two Markets", "label": "Chicago & Clearwater" }
+  ],
+  "aboutStats": [
+    { "value": "$245M+", "label": "In Real Estate Sales" },
+    { "value": "385+", "label": "Closed Transactions" },
+    { "value": "149+", "label": "Sales In Park Ridge" }
+  ]
+}

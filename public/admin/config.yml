@@ -67,3 +67,118 @@ collections:
         label: "Article Body"
         widget: markdown
         hint: "The article itself. Use Heading 2 for section titles."
+
+  # ─── Reviews ──────────────────────────────────────────────────────────────
+  - name: reviews
+    label: "Reviews"
+    label_singular: "Review"
+    description: "Client reviews shown in the 'What Clients Say' carousel. Add, edit, or delete reviews here."
+    folder: "content/reviews"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    extension: md
+    format: yaml-frontmatter
+    summary: "{{body}}"
+    fields:
+      - name: name
+        label: "Client name"
+        widget: string
+        required: false
+        hint: "Optional. Shown under the quote, e.g. 'The Johnson Family'. Leave blank to keep it anonymous."
+      - name: rating
+        label: "Star rating"
+        widget: number
+        value_type: int
+        min: 1
+        max: 5
+        default: 5
+        hint: "Number of gold stars (1–5)."
+      - name: body
+        label: "Review text"
+        widget: text
+        hint: "What the client said, in their words."
+
+  # ─── Neighborhood Guides ──────────────────────────────────────────────────
+  - name: neighborhoods
+    label: "Neighborhood Guides"
+    label_singular: "Neighborhood Guide"
+    description: "Local-area guides. Each one is a full page with a photo and write-up. Add, edit, or delete them here."
+    folder: "content/neighborhoods"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    extension: md
+    format: yaml-frontmatter
+    preview_path: "#guide/{{slug}}"
+    summary: "{{name}}  ·  {{market}}"
+    sortable_fields: [order, name, market]
+    fields:
+      - name: name
+        label: "Neighborhood name"
+        widget: string
+        hint: "The title, e.g. 'North Shore'."
+      - name: market
+        label: "Market"
+        widget: select
+        options:
+          - { label: "Chicago", value: chicago }
+          - { label: "Florida", value: florida }
+          - { label: "Both Markets", value: both }
+        default: chicago
+        hint: 'Which page it appears on. "Both Markets" shows it on Chicago and Florida.'
+      - name: order
+        label: "Order"
+        widget: number
+        value_type: int
+        min: 1
+        default: 1
+        hint: "Controls card order within a market (1 shows first)."
+      - name: excerpt
+        label: "Short description"
+        widget: text
+        hint: "One or two sentences shown on the card in the grid."
+      - name: heroImage
+        label: "Hero Image"
+        widget: image
+        hint: "The large photo at the top of the guide page."
+      - name: body
+        label: "Guide Body"
+        widget: markdown
+        hint: "The full write-up. Use Heading 2 for section titles."
+
+  # ─── Homepage Numbers ─────────────────────────────────────────────────────
+  # A single settings file (not a list of pages). Lets Craig update the sales
+  # stats shown in the hero banner and About section without a developer.
+  - name: site
+    label: "Homepage Numbers"
+    description: "The sales and achievement numbers shown on the homepage."
+    delete: false
+    editor:
+      preview: false
+    files:
+      - name: stats
+        label: "Homepage Numbers"
+        file: "content/site/stats.json"
+        description: "Edit the numbers in the hero banner and the About section."
+        fields:
+          - name: heroStats
+            label: "Hero banner numbers"
+            label_singular: "Stat"
+            widget: list
+            max: 3
+            summary: "{{fields.value}} — {{fields.label}}"
+            hint: "The three figures across the bottom of the top banner."
+            fields:
+              - { name: value, label: "Number", widget: string, hint: 'e.g. "$245M+" or "25 Years".' }
+              - { name: label, label: "Caption", widget: string, hint: 'e.g. "In Real Estate Sales".' }
+          - name: aboutStats
+            label: "About-section numbers"
+            label_singular: "Stat"
+            widget: list
+            max: 3
+            summary: "{{fields.value}} — {{fields.label}}"
+            hint: "The three figures in the 'About Craig' section."
+            fields:
+              - { name: value, label: "Number", widget: string, hint: 'e.g. "385+".' }
+              - { name: label, label: "Caption", widget: string, hint: 'e.g. "Closed Transactions".' }

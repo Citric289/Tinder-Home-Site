@@ -4,6 +4,9 @@ import blakeLogo from "./blake-logo.png";
 import tinderHomeLogo from "./Tinder Home.png";
 import craigPhoto from "./craig-tinder-photo.jpg";
 import { POSTS, POSTS_BY_MARKET, getPostBySlug, postInMarket } from "./blog/posts";
+import { GUIDES_BY_MARKET, getGuideBySlug, guideInMarket } from "./neighborhoods/guides";
+import { REVIEWS } from "./reviews/reviews";
+import siteStats from "../content/site/stats.json";
 
 // Resolve a post's "market" frontmatter to a real theme key. "both" posts have
 // no theme of their own, so they default to Chicago when opened cold (e.g. a
@@ -41,12 +44,6 @@ const THEMES = {
     heroImage: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&q=80",
     logoUrl: "https://resources.atproperties.com/images/ta/atp/20250717160224.at.cirehorizontalfullcolor.450.png",
     logoAspect: "wide",
-    neighborhoods: [
-      { name: "North Shore", desc: "Evanston, Wilmette, Winnetka, and Highland Park — prestigious lakefront communities with exceptional schools and charm." },
-      { name: "Northwest Suburbs", desc: "Arlington Heights, Palatine, and Schaumburg offer family-friendly living, top park districts, and easy expressway access." },
-      { name: "NW Chicago Neighborhoods", desc: "Edison Park, Norwood Park, and Jefferson Park blend city energy with a tight-knit, small-town feel." },
-      { name: "North Suburbs", desc: "Glenview, Northbrook, and Deerfield — consistently ranked among Illinois' best places to live and raise a family." },
-    ],
   },
   florida: {
     name: "Florida",
@@ -58,27 +55,8 @@ const THEMES = {
     heroImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80",
     logoUrl: blakeLogo,
     logoAspect: "square",
-    neighborhoods: [
-      { name: "Clearwater Beach", desc: "World-famous white sand and turquoise water — consistently ranked among America's best beaches and ideal for full-time or vacation living." },
-      { name: "Dunedin & Safety Harbor", desc: "Charming downtowns, waterfront parks, and a relaxed coastal lifestyle just minutes from the beach." },
-      { name: "St. Petersburg", desc: "A thriving arts scene, waterfront dining, and one of Florida's fastest-growing real estate markets." },
-      { name: "Palm Harbor & Tarpon Springs", desc: "Top-rated schools, lush neighborhoods, and a welcoming community — a favorite for families relocating from the Midwest." },
-    ],
   },
 };
-
-const TESTIMONIALS = [
-  { text: "It truly makes a big difference who you work with on the other side of a real estate transaction. Craig has been in the real estate business for over 20 years and it shows—his experience, strong local knowledge, and connections in the Park Ridge and surrounding areas help him bring transactions smoothly to the closing table.", rating: 5 },
-  { text: "Craig is an exceptional realtor. His deep expertise in the Chicagoland market and his commitment to forming a trusting relationship with his clients ensure that they will find the perfect place to call home. His attention to detail and responsiveness make purchasing a new home a truly positive experience.", rating: 5 },
-  { text: "Craig and the Tinder Team have been wonderful to work with. He has the experience and professionalism to close your deal with complete satisfaction. Don't forget to use Craig and his vast network of referrals for your out of state property needs!", rating: 5 },
-  { text: "Craig's knowledge of the Park Ridge area is second to none. He guided us through every step of the selling process with professionalism and ease. We couldn't have asked for a better partner in this transition.", rating: 5 },
-  { text: "Highly recommend Craig for anyone looking in the Chicago suburbs. He is incredibly patient, never pushy, and truly wants what is best for his clients. A true professional in every sense of the word.", rating: 5 },
-  { text: "We used Craig for both a purchase and a sale. His negotiation skills are top-tier and he managed to get us a price we were very happy with. His communication throughout the entire process was flawless.", rating: 5 },
-  { text: "Expert service from start to finish. Craig's 20+ years of experience really shine when things get complicated—he knows exactly how to handle every situation that arises during a closing.", rating: 5 },
-  { text: "If you are looking for an agent who actually listens and delivers, Craig is your guy. He made the stressful process of finding a home in a competitive market feel manageable and even enjoyable.", rating: 5 },
-  { text: "Professional, knowledgeable, and reliable. Craig Tinder is a staple of the Park Ridge real estate community for a reason. He treats every client like they are his only client.", rating: 5 },
-  { text: "Fantastic experience working with the Tinder Team. They are responsive, organized, and deeply connected in both the local Illinois market and Florida. Seamless service across the board.", rating: 5 },
-];
 
 const FORMSPREE = {
   valuation: {
@@ -524,7 +502,7 @@ function Hero({ theme }) {
           fontWeight: 300,
           letterSpacing: "0.02em",
         }}>
-          Over two decades helping families buy, sell, and invest — with the personal touch that makes all the difference.
+          Over two decades helping families buy, sell, and invest with the personal touch that makes all the difference.
         </p>
         <GhostButton href="#contact" variant="light" className="lux-btn-light">
           Begin the Conversation
@@ -547,11 +525,7 @@ function Hero({ theme }) {
           flexWrap: "wrap",
         }}
       >
-        {[
-          { value: "$245M+", label: "In Real Estate Sales" },
-          { value: "25 Years", label: "Serving Clients" },
-          { value: "Two Markets", label: "Chicago & Clearwater" },
-        ].map((stat, i) => (
+        {siteStats.heroStats.map((stat, i) => (
           <div key={i} style={{ textAlign: "center" }}>
             <p style={{ fontFamily: L.serif, fontSize: "clamp(20px, 2.2vw, 28px)", color: "#fff", margin: "0 0 5px", fontWeight: 400 }}>{stat.value}</p>
             <p style={{ fontFamily: L.sans, fontSize: 10, color: "rgba(255,255,255,0.45)", margin: 0, letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600 }}>{stat.label}</p>
@@ -601,11 +575,7 @@ function About() {
 
             {/* Clean stats row */}
             <div style={{ display: "flex", gap: 52, flexWrap: "wrap", marginBottom: 48 }}>
-              {[
-                { value: "$245M+", label: "In Real Estate Sales" },
-                { value: "385+",   label: "Closed Transactions" },
-                { value: "149+",   label: "Sales In Park Ridge" },
-              ].map((item, i) => (
+              {siteStats.aboutStats.map((item, i) => (
                 <div key={i}>
                   <p style={{ fontFamily: L.serif, fontSize: "clamp(22px, 2vw, 30px)", color: L.charcoal, margin: "0 0 5px", fontWeight: 400 }}>{item.value}</p>
                   <p style={{ fontFamily: L.sans, fontSize: 10, color: L.slateLight, margin: 0, letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600 }}>{item.label}</p>
@@ -720,8 +690,12 @@ function MarketPulse() {
 }
 
 // ─── NEIGHBORHOODS ──────────────────────────────────────────────────────────
-function Neighborhoods({ theme }) {
+// Cards are driven by the Markdown guides in /content/neighborhoods (edited in
+// the CMS). Each card opens a full guide page (see NeighborhoodGuide), mirroring
+// how the blog cards open a full post.
+function Neighborhoods({ theme, activeTheme, onOpenGuide }) {
   const headRef = useFadeIn(0);
+  const guides = GUIDES_BY_MARKET[activeTheme] || [];
 
   return (
     <section id="neighborhoods" className="lux-section" style={{ padding: "120px 80px", background: L.cream }}>
@@ -735,8 +709,8 @@ function Neighborhoods({ theme }) {
           </p>
         </div>
         <div className="lux-card-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 3 }}>
-          {theme.neighborhoods.map((n, i) => (
-            <NeighborhoodCard key={n.name} n={n} i={i} />
+          {guides.map((n, i) => (
+            <NeighborhoodCard key={n.slug} n={n} i={i} onOpen={() => onOpenGuide(n.slug)} />
           ))}
         </div>
       </div>
@@ -744,22 +718,30 @@ function Neighborhoods({ theme }) {
   );
 }
 
-function NeighborhoodCard({ n, i }) {
+function NeighborhoodCard({ n, i, onOpen }) {
   const outerRef = useFadeIn(i * 0.07);
   const [hovered, setHovered] = useState(false);
   return (
-    <div ref={outerRef} className="lux-fade">
+    <div ref={outerRef} className="lux-fade" style={{ height: "100%" }}>
       <div
+        onClick={onOpen}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen?.(); } }}
+        role="link"
+        tabIndex={0}
+        aria-label={`Read neighborhood guide: ${n.name}`}
         style={{
           background: L.white,
           padding: "48px 40px",
-          cursor: "default",
+          cursor: "pointer",
           transform: hovered ? "translateY(-5px)" : "translateY(0)",
           boxShadow: hovered ? "0 16px 48px rgba(0,0,0,0.07)" : "none",
           transition: "transform 0.22s ease, box-shadow 0.22s ease",
           height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          outline: "none",
         }}
       >
         <span style={{ fontFamily: L.serif, fontSize: 13, color: L.gold, letterSpacing: "0.06em", fontWeight: 400 }}>
@@ -780,9 +762,22 @@ function NeighborhoodCard({ n, i }) {
           fontSize: 14,
           color: L.slate,
           lineHeight: 1.95,
-          margin: 0,
+          margin: "0 0 28px",
           fontWeight: 300,
-        }}>{n.desc}</p>
+        }}>{n.excerpt}</p>
+        <span style={{
+          marginTop: "auto",
+          fontFamily: L.sans,
+          fontSize: 10,
+          color: hovered ? L.gold : L.slateLight,
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          fontWeight: 700,
+          transition: "color 0.22s ease",
+          borderBottom: `1px solid ${hovered ? L.gold : "transparent"}`,
+          paddingBottom: 2,
+          alignSelf: "flex-start",
+        }}>Read Guide →</span>
       </div>
     </div>
   );
@@ -793,7 +788,7 @@ function Testimonials() {
   const headRef   = useFadeIn(0);
   const trackRef  = useRef(null);
   const [activeIdx, setActiveIdx] = useState(0);
-  const total = TESTIMONIALS.length;
+  const total = REVIEWS.length;
 
   function scrollTo(idx) {
     const track = trackRef.current;
@@ -853,9 +848,9 @@ function Testimonials() {
           msOverflowStyle: "none",
         }}
       >
-        {TESTIMONIALS.map((t, i) => (
+        {REVIEWS.map((t, i) => (
           <div
-            key={i}
+            key={t.slug}
             onClick={() => scrollTo(i)}
             style={{
               flexShrink: 0,
@@ -880,6 +875,12 @@ function Testimonials() {
               margin: "20px 0 28px", fontStyle: "italic", fontWeight: 400, letterSpacing: "0.01em",
             }}>"{t.text}"</p>
             <div style={{ width: 24, height: 1, background: L.gold }} />
+            {t.name && (
+              <p style={{
+                fontFamily: L.sans, fontSize: 11, color: L.slate, margin: "20px 0 0",
+                letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 700,
+              }}>— {t.name}</p>
+            )}
           </div>
         ))}
       </div>
@@ -904,7 +905,7 @@ function Testimonials() {
 
         {/* Dot indicators */}
         <div style={{ display: "flex", gap: 8 }}>
-          {TESTIMONIALS.map((_, i) => (
+          {REVIEWS.map((_, i) => (
             <button
               key={i}
               onClick={() => scrollTo(i)}
@@ -1383,6 +1384,157 @@ function BlogPost({ post, activeTheme, onBack, onOpenPost }) {
   );
 }
 
+// ─── NEIGHBORHOOD GUIDE (full page view) ─────────────────────────────────────
+// The full-page view for a neighborhood guide. Mirrors BlogPost: a hero image,
+// the Markdown body rendered with the shared mdComponents, an author footer, and
+// a "More Neighborhoods" grid of other guides in the same market.
+function NeighborhoodGuide({ guide, activeTheme, onBack, onOpenGuide }) {
+  const headRef = useFadeIn(0);
+  const bodyRef = useFadeIn(0.08);
+
+  // Up to three other guides in the market being browsed, excluding this one.
+  const related = (GUIDES_BY_MARKET[activeTheme] || GUIDES_BY_MARKET[marketToTheme(guide.market)] || [])
+    .filter(g => g.slug !== guide.slug)
+    .slice(0, 3);
+
+  return (
+    <article style={{ background: L.white }}>
+      {/* Hero */}
+      <header style={{
+        position: "relative",
+        height: "62vh",
+        minHeight: 460,
+        display: "flex",
+        alignItems: "flex-end",
+        overflow: "hidden",
+        background: L.charcoal,
+      }}>
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: `url(${guide.heroImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }} />
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(180deg, rgba(18,18,18,0.32) 0%, rgba(18,18,18,0.78) 100%)",
+        }} />
+        <div ref={headRef} className="lux-fade lux-hero-content" style={{
+          position: "relative",
+          maxWidth: 880,
+          width: "100%",
+          margin: "0 auto",
+          padding: "0 80px 88px",
+          color: "#fff",
+        }}>
+          <Eyebrow light>Neighborhood Guide</Eyebrow>
+          <h1 style={{
+            fontFamily: L.serif,
+            fontSize: "clamp(34px, 4.4vw, 60px)",
+            margin: 0,
+            fontWeight: 400,
+            lineHeight: 1.12,
+            letterSpacing: "-0.01em",
+            color: "#fff",
+            maxWidth: 820,
+          }}>{guide.name}</h1>
+        </div>
+      </header>
+
+      {/* Body */}
+      <div ref={bodyRef} className="lux-fade" style={{
+        maxWidth: 760,
+        margin: "0 auto",
+        padding: "88px 32px 32px",
+      }}>
+        <button
+          onClick={onBack}
+          style={{
+            background: "none",
+            border: "none",
+            padding: 0,
+            margin: "0 0 48px",
+            fontFamily: L.sans,
+            fontSize: 10,
+            color: L.slate,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = L.gold}
+          onMouseLeave={e => e.currentTarget.style.color = L.slate}
+        >
+          ← All Neighborhoods
+        </button>
+
+        <ReactMarkdown components={mdComponents}>{guide.body}</ReactMarkdown>
+
+        {/* Author footer */}
+        <div style={{
+          marginTop: 72,
+          padding: "40px 0 0",
+          borderTop: `1px solid ${L.border}`,
+          display: "flex",
+          gap: 24,
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}>
+          <img
+            src={craigPhoto}
+            alt="Craig Tinder"
+            style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+          />
+          <div style={{ flex: "1 1 240px" }}>
+            <p style={{ fontFamily: L.serif, fontSize: 18, color: L.charcoal, margin: "0 0 4px", fontWeight: 500 }}>Craig Tinder</p>
+            <p style={{ fontFamily: L.sans, fontSize: 13, color: L.slate, margin: 0, lineHeight: 1.6, fontWeight: 300 }}>
+              Twenty-five years guiding clients across the greater Chicago area and Florida's Gulf Coast. Former therapist and college lecturer — now a Park Ridge–based broker with $245M+ in career sales.
+            </p>
+          </div>
+          <a href="#contact" onClick={onBack} style={{
+            fontFamily: L.sans,
+            fontSize: 10,
+            color: L.charcoal,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            fontWeight: 700,
+            textDecoration: "none",
+            border: `1px solid ${L.charcoal}`,
+            padding: "13px 28px",
+            transition: "all 0.25s ease",
+          }}
+          className="lux-btn-dark"
+          >Work With Craig</a>
+        </div>
+      </div>
+
+      {/* Related */}
+      {related.length > 0 && (
+        <section style={{ background: L.cream, padding: "88px 32px 120px", marginTop: 96 }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 48 }}>
+              <Eyebrow>Keep Exploring</Eyebrow>
+              <SectionHeading center>More Neighborhoods</SectionHeading>
+              <GoldRule center />
+            </div>
+            <div className="lux-card-grid" style={{
+              display: "grid",
+              gridTemplateColumns: `repeat(auto-fit, minmax(280px, 1fr))`,
+              gap: 3,
+            }}>
+              {related.map((g, i) => (
+                <NeighborhoodCard key={g.slug} n={g} i={i} onOpen={() => onOpenGuide(g.slug)} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+    </article>
+  );
+}
+
 // ─── VALUATION ───────────────────────────────────────────────────────────────
 // ─── MORTGAGE CALCULATOR ────────────────────────────────────────────────────
 function Calculator() {
@@ -1570,7 +1722,7 @@ function Valuation({ theme, activeTheme }) {
         <div ref={ref} className="lux-fade lux-val-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start" }}>
           {/* Copy */}
           <div>
-            <Eyebrow light>Complimentary</Eyebrow>
+            <Eyebrow light></Eyebrow>
             <h2 style={{
               fontFamily: L.serif,
               fontSize: "clamp(32px, 3.2vw, 50px)",
@@ -2071,13 +2223,25 @@ function readPostSlugFromHash() {
   return null;
 }
 
+// Hash format: "#guide/<slug>" routes to a full neighborhood guide.
+function readGuideSlugFromHash() {
+  const h = (typeof window !== "undefined" ? window.location.hash : "").replace(/^#/, "");
+  if (h.startsWith("guide/")) return h.slice(6);
+  return null;
+}
+
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 export default function CraigTinderRealEstate() {
   const [activeSlug, setActiveSlug] = useState(() => readPostSlugFromHash());
-  // Deep links to /#post/<slug> auto-pick the post's market so the page can render.
+  const [activeGuideSlug, setActiveGuideSlug] = useState(() => readGuideSlugFromHash());
+  // Deep links to /#post/<slug> or /#guide/<slug> auto-pick the content's market
+  // so the page can render cold.
   const [activeTheme, setActiveTheme] = useState(() => {
-    const slug = readPostSlugFromHash();
-    return slug ? marketToTheme(getPostBySlug(slug)?.market) : null;
+    const postSlug = readPostSlugFromHash();
+    if (postSlug) return marketToTheme(getPostBySlug(postSlug)?.market);
+    const guideSlug = readGuideSlugFromHash();
+    if (guideSlug) return marketToTheme(getGuideBySlug(guideSlug)?.market);
+    return null;
   });
   const [scrolled, setScrolled] = useState(false);
   const [fading,   setFading]   = useState(false);
@@ -2088,9 +2252,12 @@ export default function CraigTinderRealEstate() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Sync activeSlug with the URL hash so deep links + back/forward work.
+  // Sync the active post/guide with the URL hash so deep links + back/forward work.
   useEffect(() => {
-    const sync = () => setActiveSlug(readPostSlugFromHash());
+    const sync = () => {
+      setActiveSlug(readPostSlugFromHash());
+      setActiveGuideSlug(readGuideSlugFromHash());
+    };
     window.addEventListener("hashchange", sync);
     return () => window.removeEventListener("hashchange", sync);
   }, []);
@@ -2101,6 +2268,7 @@ export default function CraigTinderRealEstate() {
     // Only switch markets if the post isn't available in the current one.
     // "both" posts are available everywhere, so they never force a switch.
     if (!activeTheme || !postInMarket(p, activeTheme)) setActiveTheme(marketToTheme(p.market));
+    setActiveGuideSlug(null);
     setActiveSlug(slug);
     if (window.location.hash !== `#post/${slug}`) {
       window.history.pushState(null, "", `#post/${slug}`);
@@ -2114,6 +2282,28 @@ export default function CraigTinderRealEstate() {
     // Scroll to the Blog section once it's mounted again
     setTimeout(() => {
       document.getElementById("blog")?.scrollIntoView({ behavior: "instant", block: "start" });
+    }, 0);
+  };
+
+  const openGuide = (slug) => {
+    const g = getGuideBySlug(slug);
+    if (!g) return;
+    // Switch markets only if the guide isn't available in the current one.
+    if (!activeTheme || !guideInMarket(g, activeTheme)) setActiveTheme(marketToTheme(g.market));
+    setActiveSlug(null);
+    setActiveGuideSlug(slug);
+    if (window.location.hash !== `#guide/${slug}`) {
+      window.history.pushState(null, "", `#guide/${slug}`);
+    }
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
+
+  const closeGuide = () => {
+    setActiveGuideSlug(null);
+    window.history.pushState(null, "", "#neighborhoods");
+    // Scroll back to the Neighborhoods section once it's mounted again.
+    setTimeout(() => {
+      document.getElementById("neighborhoods")?.scrollIntoView({ behavior: "instant", block: "start" });
     }, 0);
   };
 
@@ -2131,7 +2321,8 @@ export default function CraigTinderRealEstate() {
       setActiveTheme(key);
       // Switching markets returns to the homepage of the new market
       setActiveSlug(null);
-      if (window.location.hash.startsWith("#post/")) {
+      setActiveGuideSlug(null);
+      if (window.location.hash.startsWith("#post/") || window.location.hash.startsWith("#guide/")) {
         window.history.pushState(null, "", "#");
       }
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -2143,6 +2334,7 @@ export default function CraigTinderRealEstate() {
 
   const theme = THEMES[activeTheme];
   const activePost = activeSlug ? getPostBySlug(activeSlug) : null;
+  const activeGuide = activeGuideSlug ? getGuideBySlug(activeGuideSlug) : null;
 
   return (
     <>
@@ -2155,15 +2347,17 @@ export default function CraigTinderRealEstate() {
         background: L.white,
         minHeight: "100vh",
       }}>
-        <Nav activeTheme={activeTheme} onSwitch={switchTheme} onHome={() => { setActiveSlug(null); setActiveTheme(null); }} scrolled={scrolled} />
+        <Nav activeTheme={activeTheme} onSwitch={switchTheme} onHome={() => { setActiveSlug(null); setActiveGuideSlug(null); setActiveTheme(null); }} scrolled={scrolled} />
         {activePost ? (
           <BlogPost post={activePost} activeTheme={activeTheme} onBack={closePost} onOpenPost={openPost} />
+        ) : activeGuide ? (
+          <NeighborhoodGuide guide={activeGuide} activeTheme={activeTheme} onBack={closeGuide} onOpenGuide={openGuide} />
         ) : (
           <>
             <Hero theme={theme} />
             <MarketPulse />
             <About />
-            <Neighborhoods theme={theme} />
+            <Neighborhoods theme={theme} activeTheme={activeTheme} onOpenGuide={openGuide} />
             <Testimonials />
             <Blog activeTheme={activeTheme} onOpenPost={openPost} />
             <Calculator />

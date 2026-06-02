@@ -75,8 +75,44 @@ If it logs you into the editor, everything is wired correctly.
 Open **Blog Posts**, click a post to edit it (or delete it), then **Publish**.
 Same one-minute wait for the change to go live.
 
-> You can only change blog posts here — never the rest of the site. If something
-> looks wrong, the developer can undo any change from GitHub's history.
+### Reviews
+1. Click **Reviews → New Review**.
+2. Fill in:
+   - **Client name** — optional. Shown under the quote (e.g. "The Johnson Family").
+     Leave it blank to keep the review anonymous.
+   - **Star rating** — 1 to 5 gold stars (defaults to 5).
+   - **Review text** — what the client said.
+3. **Publish.** The review joins the "What Clients Say" carousel on both the Chicago
+   and Florida pages.
+
+To edit or remove a review, open **Reviews**, click it, make changes (or delete), then **Publish**.
+
+### Neighborhood Guides
+Each guide is a **full page** with a photo and a write-up — the cards in the
+"Neighborhood Guides" section open them.
+1. Click **Neighborhood Guides → New Neighborhood Guide**.
+2. Fill in:
+   - **Neighborhood name** — the title (e.g. "North Shore").
+   - **Market** — Chicago, Florida, or Both (controls which page it shows on).
+   - **Order** — `1` shows first in the grid, then `2`, `3`, …
+   - **Short description** — one or two sentences shown on the card.
+   - **Hero Image** — the big photo at the top of the guide page.
+   - **Guide Body** — the full write-up. Use the **Heading 2** button for section titles.
+3. **Publish.** Edit or delete the same way you would a blog post.
+
+### Homepage Numbers
+The sales figures on the homepage (e.g. **$245M+**, **385+**, **149+**) are editable.
+1. Click **Homepage Numbers → Homepage Numbers**.
+2. Update any **Number** or **Caption** under *Hero banner numbers* (the top banner)
+   or *About-section numbers* (the "About Craig" section).
+3. **Publish.**
+
+> Note: this updates the big number tiles, not the sentences in the paragraphs. If
+> you want a number changed inside a paragraph too, ask the developer.
+
+> These sections — Blog Posts, Reviews, Neighborhood Guides, and Homepage Numbers —
+> are everything you can edit here; the rest of the site stays fixed. If something
+> ever looks wrong, the developer can undo any change from GitHub's history.
 
 ---
 
