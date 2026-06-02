@@ -892,9 +892,9 @@ function Testimonials() {
     setActiveIdx(closest);
   }
 
-  // Auto-advance is driven by the progress bar below: its gold fill animates for
-  // 5.5s and its onAnimationEnd advances to the next review, so the bar and the
-  // timing are always in sync. Pausing just freezes the animation (see `paused`).
+  // Auto-advance is driven by the active dot below: its gold fill animates for
+  // 5.5s and its onAnimationEnd advances to the next review, so the indicator and
+  // the timing are always in sync. Pausing just freezes the animation (see `paused`).
 
   // Pause while the browser tab isn't visible.
   useEffect(() => {
@@ -986,22 +986,45 @@ function Testimonials() {
           </svg>
         </button>
 
-        {/* Dot indicators */}
+        {/* Dot indicators — on the active dot, the gold fill animates left to
+            right as the auto-advance countdown, and reaching the end advances. */}
         <div style={{ display: "flex", gap: 8 }}>
-          {REVIEWS.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => scrollTo(i)}
-              aria-label={`Go to review ${i + 1}`}
-              style={{
-                width: activeIdx === i ? 24 : 6,
-                height: 6,
-                background: activeIdx === i ? L.gold : L.border,
-                border: "none", padding: 0, cursor: "pointer",
-                transition: "width 0.3s ease, background 0.3s ease",
-              }}
-            />
-          ))}
+          {REVIEWS.map((_, i) => {
+            const isActive = activeIdx === i;
+            const animate = isActive && !reduceMotion && total > 1;
+            return (
+              <button
+                key={i}
+                onClick={() => scrollTo(i)}
+                aria-label={`Go to review ${i + 1}`}
+                style={{
+                  width: isActive ? 24 : 6,
+                  height: 6,
+                  background: isActive && !animate ? L.gold : L.border,
+                  border: "none", padding: 0, cursor: "pointer",
+                  overflow: "hidden",
+                  transition: "width 0.3s ease, background 0.3s ease",
+                }}
+              >
+                {animate && (
+                  <span
+                    key={activeIdx}
+                    onAnimationEnd={next}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      height: "100%",
+                      background: L.gold,
+                      transformOrigin: "left center",
+                      transform: "scaleX(0)",
+                      animation: "testiProgress 5.5s linear forwards",
+                      animationPlayState: paused ? "paused" : "running",
+                    }}
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Next arrow */}
@@ -1019,28 +1042,6 @@ function Testimonials() {
           </svg>
         </button>
       </div>
-
-      {/* Auto-advance progress — the gold fill is the countdown to the next
-          review; reaching the end advances the carousel. Hidden (and no
-          rotation) for reduced-motion users. */}
-      {!reduceMotion && total > 1 && (
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 32, padding: "0 80px" }}>
-          <div style={{ width: 220, height: 2, background: L.border, overflow: "hidden" }}>
-            <div
-              key={activeIdx}
-              onAnimationEnd={next}
-              style={{
-                height: "100%",
-                background: L.gold,
-                transformOrigin: "left center",
-                transform: "scaleX(0)",
-                animation: "testiProgress 5.5s linear forwards",
-                animationPlayState: paused ? "paused" : "running",
-              }}
-            />
-          </div>
-        </div>
-      )}
 
     </section>
   );
