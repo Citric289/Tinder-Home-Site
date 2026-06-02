@@ -113,6 +113,8 @@ const GLOBAL_CSS = `
     .lux-stats   { grid-template-columns: 1fr 1fr !important; }
     .lux-section { padding: 72px 28px !important; }
     .lux-nav-links { display: none !important; }
+    .lux-nav-burger { display: flex !important; }
+    .lux-nav-logo { height: 60px !important; }
     .lux-nav     { padding: 0 24px !important; }
     .lux-hero-stats { padding: 28px 24px !important; gap: 32px !important; }
     .lux-hero-content { padding: 0 20px !important; }
@@ -340,7 +342,25 @@ function ThemeToggle({ active, onSwitch, scrolled }) {
 }
 
 // ─── NAV ────────────────────────────────────────────────────────────────────
+const NAV_ITEMS = ["About", "Neighborhoods", "Testimonials", "Blog", "Contact"];
+
 function Nav({ activeTheme, onSwitch, onHome, scrolled }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Lock body scroll while the mobile menu is open.
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
+  // Close the mobile menu on Escape.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e) => { if (e.key === "Escape") setMenuOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+
   return (
     <nav className="lux-nav" style={{
       position: "fixed",
@@ -364,11 +384,12 @@ function Nav({ activeTheme, onSwitch, onHome, scrolled }) {
         style={{ background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center" }}
         aria-label="Return to market selection"
       >
-        <img src={craigLogo} alt="Craig Tinder" style={{ height: 116, width: "auto", display: "block", filter: scrolled ? "none" : "brightness(0) invert(1)", transition: "filter 0.4s ease" }} />
+        <img className="lux-nav-logo" src={craigLogo} alt="Craig Tinder" style={{ height: 116, width: "auto", display: "block", filter: scrolled ? "none" : "brightness(0) invert(1)", transition: "filter 0.4s ease" }} />
       </button>
-      {/* Links */}
+
+      {/* Desktop links */}
       <div className="lux-nav-links" style={{ display: "flex", alignItems: "center", gap: 36 }}>
-        {["About", "Neighborhoods", "Testimonials", "Blog", "Contact"].map(item => (
+        {NAV_ITEMS.map(item => (
           <a key={item} href={`#${item.toLowerCase()}`} style={{
             fontFamily: L.sans,
             fontSize: 10,
@@ -384,6 +405,87 @@ function Nav({ activeTheme, onSwitch, onHome, scrolled }) {
           >{item}</a>
         ))}
         <ThemeToggle active={activeTheme} onSwitch={onSwitch} scrolled={scrolled} />
+      </div>
+
+      {/* Mobile hamburger — revealed below 900px via .lux-nav-burger */}
+      <button
+        className="lux-nav-burger"
+        onClick={() => setMenuOpen(true)}
+        aria-label="Open menu"
+        aria-expanded={menuOpen}
+        style={{
+          display: "none",
+          flexDirection: "column",
+          gap: 5,
+          background: "none",
+          border: "none",
+          padding: 8,
+          cursor: "pointer",
+        }}
+      >
+        {[0, 1, 2].map(i => (
+          <span key={i} style={{
+            display: "block", width: 24, height: 2,
+            background: scrolled ? L.charcoal : "#fff",
+            transition: "background 0.3s ease",
+          }} />
+        ))}
+      </button>
+
+      {/* Mobile menu overlay */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Site menu"
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 1100,
+          background: L.cream,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          opacity: menuOpen ? 1 : 0,
+          pointerEvents: menuOpen ? "auto" : "none",
+          transition: "opacity 0.3s ease",
+        }}
+      >
+        <button
+          onClick={() => setMenuOpen(false)}
+          aria-label="Close menu"
+          style={{
+            position: "absolute", top: 26, right: 24,
+            background: "none", border: "none", padding: 8, cursor: "pointer",
+            fontFamily: L.sans, fontSize: 30, lineHeight: 1, color: L.charcoal,
+          }}
+        >×</button>
+
+        {NAV_ITEMS.map(item => (
+          <a
+            key={item}
+            href={`#${item.toLowerCase()}`}
+            onClick={() => setMenuOpen(false)}
+            style={{
+              fontFamily: L.serif,
+              fontSize: 30,
+              color: L.charcoal,
+              textDecoration: "none",
+              fontWeight: 400,
+              letterSpacing: "0.01em",
+              padding: "12px 0",
+            }}
+          >{item}</a>
+        ))}
+
+        <div style={{ width: 40, height: 1, background: L.gold, margin: "28px 0" }} />
+
+        {/* Market toggle — close the menu after switching */}
+        <ThemeToggle
+          active={activeTheme}
+          onSwitch={(key) => { onSwitch(key); setMenuOpen(false); }}
+          scrolled={true}
+        />
       </div>
     </nav>
   );
@@ -464,7 +566,7 @@ function Hero({ theme }) {
           Over two decades helping families buy, sell, and invest with the personal touch that makes all the difference.
         </p>
         <GhostButton href="#contact" variant="light" className="lux-btn-light">
-          Begin the Conversation
+          Contact Craig
         </GhostButton>
       </div>
 
