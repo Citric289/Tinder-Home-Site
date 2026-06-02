@@ -87,6 +87,10 @@ const GLOBAL_CSS = `
     from { opacity: 0; }
     to   { opacity: 1; }
   }
+  @keyframes testiProgress {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
   * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; box-sizing: border-box; }
   body { margin: 0; }
   input::placeholder, textarea::placeholder { color: #94A3B8; font-family: 'Montserrat', sans-serif; font-weight: 300; }
@@ -849,6 +853,11 @@ function Testimonials() {
   const headRef   = useFadeIn(0);
   const trackRef  = useRef(null);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
+  // Read once at mount — reduced-motion users get no auto-rotation or progress bar.
+  const [reduceMotion] = useState(
+    () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+  );
   const total = REVIEWS.length;
 
   function scrollTo(idx) {
@@ -864,8 +873,9 @@ function Testimonials() {
     setActiveIdx(idx);
   }
 
-  function prev() { scrollTo(Math.max(0, activeIdx - 1)); }
-  function next() { scrollTo(Math.min(total - 1, activeIdx + 1)); }
+  // Wrap-around so the rotation loops seamlessly past the ends.
+  function prev() { scrollTo((activeIdx - 1 + total) % total); }
+  function next() { scrollTo((activeIdx + 1) % total); }
 
   // Keep activeIdx in sync when user manually scrolls
   function handleScroll() {
@@ -881,6 +891,17 @@ function Testimonials() {
     });
     setActiveIdx(closest);
   }
+
+  // Auto-advance is driven by the progress bar below: its gold fill animates for
+  // 5.5s and its onAnimationEnd advances to the next review, so the bar and the
+  // timing are always in sync. Pausing just freezes the animation (see `paused`).
+
+  // Pause while the browser tab isn't visible.
+  useEffect(() => {
+    const onVis = () => setPaused(document.hidden);
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
 
   return (
     <section id="testimonials" style={{ padding: "120px 0", background: L.white, overflow: "hidden" }}>
@@ -913,6 +934,8 @@ function Testimonials() {
           <div
             key={t.slug}
             onClick={() => scrollTo(i)}
+            onMouseEnter={() => setPaused(i === activeIdx)}
+            onMouseLeave={() => setPaused(false)}
             style={{
               flexShrink: 0,
               width: "clamp(300px, 38vw, 500px)",
@@ -951,11 +974,10 @@ function Testimonials() {
         {/* Prev arrow */}
         <button
           onClick={prev}
-          disabled={activeIdx === 0}
           style={{
             background: "none", border: `1px solid ${L.border}`, width: 44, height: 44,
-            cursor: activeIdx === 0 ? "default" : "pointer", display: "flex", alignItems: "center",
-            justifyContent: "center", opacity: activeIdx === 0 ? 0.25 : 1, transition: "opacity 0.2s ease",
+            cursor: "pointer", display: "flex", alignItems: "center",
+            justifyContent: "center", transition: "opacity 0.2s ease",
           }}
           aria-label="Previous review"
         >
@@ -985,11 +1007,10 @@ function Testimonials() {
         {/* Next arrow */}
         <button
           onClick={next}
-          disabled={activeIdx === total - 1}
           style={{
             background: "none", border: `1px solid ${L.border}`, width: 44, height: 44,
-            cursor: activeIdx === total - 1 ? "default" : "pointer", display: "flex", alignItems: "center",
-            justifyContent: "center", opacity: activeIdx === total - 1 ? 0.25 : 1, transition: "opacity 0.2s ease",
+            cursor: "pointer", display: "flex", alignItems: "center",
+            justifyContent: "center", transition: "opacity 0.2s ease",
           }}
           aria-label="Next review"
         >
@@ -998,6 +1019,28 @@ function Testimonials() {
           </svg>
         </button>
       </div>
+
+      {/* Auto-advance progress — the gold fill is the countdown to the next
+          review; reaching the end advances the carousel. Hidden (and no
+          rotation) for reduced-motion users. */}
+      {!reduceMotion && total > 1 && (
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 32, padding: "0 80px" }}>
+          <div style={{ width: 220, height: 2, background: L.border, overflow: "hidden" }}>
+            <div
+              key={activeIdx}
+              onAnimationEnd={next}
+              style={{
+                height: "100%",
+                background: L.gold,
+                transformOrigin: "left center",
+                transform: "scaleX(0)",
+                animation: "testiProgress 5.5s linear forwards",
+                animationPlayState: paused ? "paused" : "running",
+              }}
+            />
+          </div>
+        </div>
+      )}
 
     </section>
   );
