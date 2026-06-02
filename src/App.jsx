@@ -893,7 +893,7 @@ function Testimonials() {
   }
 
   // Auto-advance is driven by the active dot below: its gold fill animates for
-  // 5.5s and its onAnimationEnd advances to the next review, so the indicator and
+  // 4s and its onAnimationEnd advances to the next review, so the indicator and
   // the timing are always in sync. Pausing just freezes the animation (see `paused`).
 
   // Pause while the browser tab isn't visible.
@@ -1017,7 +1017,7 @@ function Testimonials() {
                       background: L.gold,
                       transformOrigin: "left center",
                       transform: "scaleX(0)",
-                      animation: "testiProgress 5.5s linear forwards",
+                      animation: "testiProgress 4s linear forwards",
                       animationPlayState: paused ? "paused" : "running",
                     }}
                   />
