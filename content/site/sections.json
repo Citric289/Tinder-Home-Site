@@ -1,0 +1,46 @@
+{
+  "hero": {
+    "contactButton": "Contact Craig"
+  },
+  "neighborhoods": {
+    "eyebrow": "Local Expertise",
+    "heading": "Neighborhood Guides",
+    "intro": "Explore the communities Craig knows best in the {area} area.",
+    "guideEyebrow": "Neighborhood Guide",
+    "moreEyebrow": "Keep Exploring",
+    "moreHeading": "More Neighborhoods"
+  },
+  "testimonials": {
+    "eyebrow": "Client Stories",
+    "heading": "What Clients Say"
+  },
+  "blog": {
+    "eyebrow": "Intelligence",
+    "heading": "Market Insights",
+    "intro": "Craig's latest market analysis and local intelligence.",
+    "moreEyebrow": "Keep Reading",
+    "moreHeading": "More Articles"
+  },
+  "valuation": {
+    "heading": "What Is Your Home Worth?",
+    "intro": "Receive a complimentary, no-obligation market analysis of your property. Craig reviews every request personally and responds within 24 hours.",
+    "button": "Request My Free Valuation",
+    "successHeading": "Request Received",
+    "successBody": "Craig will reach out within 24 hours with your personalized market analysis."
+  },
+  "contact": {
+    "eyebrow": "Get in Touch",
+    "heading": "Start the Conversation",
+    "intro": "Craig responds personally to every inquiry. Whether you're buying, selling, or simply exploring — no pressure, just guidance.",
+    "messagePlaceholder": "Tell me about your real estate goals...",
+    "successHeading": "Message Sent",
+    "successBody": "Craig will be in touch shortly. You can also reach him directly at {email}.",
+    "intentPlaceholder": "How can Craig help?",
+    "intentOptions": [
+      "Buy a home",
+      "Sell my home",
+      "Get a home valuation",
+      "Just exploring"
+    ]
+  }
+}

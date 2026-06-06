@@ -1,7 +1,8 @@
 # Blog Editor (Sveltia CMS) — Setup & Use
 
 This site has a no-code editor at **`/admin`** so non-developers can add, edit, and
-delete blog posts. Posts are saved as Markdown files in `content/blog/`, committed
+delete blog posts, reviews, and neighborhood guides — and change almost all of the
+site's text, photos, contact details, and per-market settings. Everything is saved
 to GitHub, and Vercel auto-deploys the site within about a minute.
 
 The GitHub login is handled by two small serverless functions in [`/api`](api/)
@@ -100,19 +101,32 @@ Each guide is a **full page** with a photo and a write-up — the cards in the
    - **Guide Body** — the full write-up. Use the **Heading 2** button for section titles.
 3. **Publish.** Edit or delete the same way you would a blog post.
 
-### Homepage Numbers
-The sales figures on the homepage (e.g. **$245M+**, **385+**, **149+**) are editable.
-1. Click **Homepage Numbers → Homepage Numbers**.
-2. Update any **Number** or **Caption** under *Hero banner numbers* (the top banner)
-   or *About-section numbers* (the "About Craig" section).
-3. **Publish.**
+### Site Settings
+Beyond posts, reviews, and guides, the **Site Settings** group lets you edit almost
+all of the fixed text and details on the site. It has five screens — open one, make
+changes, and **Publish** (same one-minute wait to go live):
 
-> Note: this updates the big number tiles, not the sentences in the paragraphs. If
-> you want a number changed inside a paragraph too, ask the developer.
+- **Homepage Numbers** — the big figures in the hero banner and the "About Craig"
+  section (e.g. **$245M+**, **385+**, **149+**). Edit any **Number** or **Caption**.
+  > Note: this updates the big number tiles, not the numbers written inside the
+  > About paragraphs (edit those under **About Craig → Bio paragraphs**).
+- **Markets (Chicago & Florida)** — everything that differs between the two markets:
+  the hero headline and subtitle, the full-screen hero/landing photo, the brokerage
+  name and (optional) logo, email, phone, the opening-screen titles, and the
+  Formspree form addresses each market submits to.
+- **About Craig** — the About section's eyebrow, heading, photo, bio paragraphs, and
+  the credentials/recognition lists, plus the author name and bio shown at the bottom
+  of every article and guide.
+- **Section Headings & Copy** — the titles and intro text for each homepage section
+  (Neighborhoods, Testimonials, Blog, Home Valuation, Contact), the hero button label,
+  the valuation/contact form copy and success messages, and the "How can Craig help?"
+  dropdown choices.
+- **Social Links & Footer** — the LinkedIn / Instagram / Facebook links (blank hides
+  an icon) and the footer name and copyright line.
 
-> These sections — Blog Posts, Reviews, Neighborhood Guides, and Homepage Numbers —
-> are everything you can edit here; the rest of the site stays fixed. If something
-> ever looks wrong, the developer can undo any change from GitHub's history.
+> A few small things stay fixed in code (the navigation menu items, button arrows,
+> and the brand wordmark logo). If something ever looks wrong, the developer can undo
+> any change from GitHub's history.
 
 ---
 

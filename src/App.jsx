@@ -7,6 +7,17 @@ import { POSTS, POSTS_BY_MARKET, getPostBySlug, postInMarket } from "./blog/post
 import { GUIDES_BY_MARKET, getGuideBySlug, guideInMarket } from "./neighborhoods/guides";
 import { REVIEWS } from "./reviews/reviews";
 import siteStats from "../content/site/stats.json";
+import marketsContent from "../content/site/markets.json";
+import aboutContent from "../content/site/about.json";
+import sectionsContent from "../content/site/sections.json";
+import contactContent from "../content/site/contact.json";
+
+// Fill a "{token}" placeholder in a CMS string with a live value (e.g. the
+// market name or Craig's email), so editable copy can still reference dynamic
+// values. Safe when the token is absent.
+function fillTemplate(str, token, value) {
+  return (str || "").replaceAll(`{${token}}`, value ?? "");
+}
 
 // Resolve a post's "market" frontmatter to a real theme key. "both" posts have
 // no theme of their own, so they default to Chicago when opened cold (e.g. a
@@ -33,41 +44,47 @@ const L = {
 };
 
 // ─── CONTENT DATA ──────────────────────────────────────────────────────────
-const THEMES = {
-  chicago: {
-    name: "Chicago",
-    brokerage: "@properties",
-    location: "Greater Chicago Area",
-    email: "craigtinder@atproperties.com",
-    taglineL1: "Your Guide to the",
-    taglineL2: "Greater Chicago Area",
-    heroImage: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&q=80",
-    logoUrl: "https://resources.atproperties.com/images/ta/atp/20250717160224.at.cirehorizontalfullcolor.450.png",
-    logoAspect: "wide",
-  },
-  florida: {
-    name: "Florida",
-    brokerage: "Blake Real Estate",
-    location: "Clearwater Area, FL",
-    email: "craig.tinder@blakerealestate.com",
-    taglineL1: "Gulf Coast Living",
-    taglineL2: "Clearwater & Beyond",
-    heroImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80",
-    logoUrl: blakeLogo,
-    logoAspect: "square",
-  },
+// Per-market settings live in content/site/markets.json and are editable in the
+// CMS. Brokerage logos are the one piece kept in code: the Chicago logo is an
+// external @properties CDN URL and the Florida logo is a bundled asset. The CMS
+// can still override either via the optional "logo" image field; when it's left
+// blank we fall back to these defaults.
+const MARKET_LOGO_DEFAULTS = {
+  chicago: "https://resources.atproperties.com/images/ta/atp/20250717160224.at.cirehorizontalfullcolor.450.png",
+  florida: blakeLogo,
 };
 
-const FORMSPREE = {
-  valuation: {
-    chicago: "https://formspree.io/f/xvzvyljl",
-    florida: "https://formspree.io/f/xzdkwwpe",
-  },
-  contact: {
-    chicago: "https://formspree.io/f/mrevzbwp", // @properties (Chicago) contact form
-    florida: "https://formspree.io/f/xojzavoa", // Blake Real Estate (Florida) contact form
-  },
+function buildTheme(key) {
+  const m = marketsContent[key] || {};
+  return {
+    name: m.name,
+    brokerage: m.brokerage,
+    location: m.location,
+    email: m.email,
+    phone: m.phone,
+    taglineL1: m.taglineL1,
+    taglineL2: m.taglineL2,
+    heroSubtitle: m.heroSubtitle,
+    heroImage: m.heroImage,
+    landingLabel: m.landingLabel,
+    landingSub: m.landingSub,
+    articleEyebrow: m.articleEyebrow,
+    logoUrl: m.logo || MARKET_LOGO_DEFAULTS[key],
+    logoAspect: m.logoShape || "wide",
+    valuationForm: m.valuationForm,
+    contactForm: m.contactForm,
+  };
+}
+
+const THEMES = {
+  chicago: buildTheme("chicago"),
+  florida: buildTheme("florida"),
 };
+
+// Craig's headshot — used in the About section and the article author footers.
+// The CMS can override it via about.json's "photo" field; otherwise we use the
+// bundled image.
+const CRAIG_PHOTO = aboutContent.photo || craigPhoto;
 
 // ─── INJECTED STYLES ────────────────────────────────────────────────────────
 const GLOBAL_CSS = `
@@ -247,38 +264,35 @@ function GhostButton({ href, children, variant = "dark", className = "", onClick
   return <button onClick={onClick} className={`lux-btn-${variant} ${className}`} style={{ ...base, border: base.border }}>{children}</button>;
 }
 
+// Social icons are kept in code; their links come from content/site/contact.json
+// so Craig can update or remove any profile in the CMS. A blank link hides that
+// icon everywhere it appears (contact section + footer).
+const SOCIAL_ICONS = {
+  LinkedIn: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="2"/>
+      <path d="M7 10v7M7 7v.01M12 17v-4c0-1.1.9-2 2-2s2 .9 2 2v4M12 10v7"/>
+    </svg>
+  ),
+  Instagram: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5"/>
+      <circle cx="12" cy="12" r="4"/>
+      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+    </svg>
+  ),
+  Facebook: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+    </svg>
+  ),
+};
+
 const SOCIALS = [
-  {
-    name: "LinkedIn",
-    url: "https://www.linkedin.com/in/craig-tinder-0162a49/",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="2" width="20" height="20" rx="2"/>
-        <path d="M7 10v7M7 7v.01M12 17v-4c0-1.1.9-2 2-2s2 .9 2 2v4M12 10v7"/>
-      </svg>
-    ),
-  },
-  {
-    name: "Instagram",
-    url: "https://www.instagram.com/tinderhome_/",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="2" width="20" height="20" rx="5"/>
-        <circle cx="12" cy="12" r="4"/>
-        <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
-      </svg>
-    ),
-  },
-  {
-    name: "Facebook",
-    url: "https://www.facebook.com/tinderhome/",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-      </svg>
-    ),
-  },
-];
+  { name: "LinkedIn",  url: contactContent.social?.linkedin,  icon: SOCIAL_ICONS.LinkedIn },
+  { name: "Instagram", url: contactContent.social?.instagram, icon: SOCIAL_ICONS.Instagram },
+  { name: "Facebook",  url: contactContent.social?.facebook,  icon: SOCIAL_ICONS.Facebook },
+].filter(s => s.url);
 
 function StarRating({ count }) {
   return (
@@ -567,10 +581,10 @@ function Hero({ theme }) {
           fontWeight: 300,
           letterSpacing: "0.02em",
         }}>
-          Over two decades helping families buy, sell, and invest with the personal touch that makes all the difference.
+          {theme.heroSubtitle}
         </p>
         <GhostButton href="#contact" variant="light" className="lux-btn-light">
-          Contact Craig
+          {sectionsContent.hero.contactButton}
         </GhostButton>
       </div>
 
@@ -628,15 +642,17 @@ function About() {
 
           {/* Text + stats */}
           <div ref={textRef} className="lux-fade">
-            <Eyebrow>About Craig</Eyebrow>
-            <SectionHeading>A Different Kind of Agent</SectionHeading>
+            <Eyebrow>{aboutContent.eyebrow}</Eyebrow>
+            <SectionHeading>{aboutContent.heading}</SectionHeading>
             <GoldRule />
-            <p style={{ fontFamily: L.sans, fontSize: 17, color: L.slate, lineHeight: 1.95, margin: "0 0 24px", fontWeight: 300, letterSpacing: "0.02em" }}>
-              Before real estate, Craig spent nearly a decade as a therapist, social worker, and college lecturer — backed by a Master of Arts from the University of Chicago. That foundation in listening, reading people, and navigating high-stakes moments shapes how he approaches every transaction today.
-            </p>
-            <p style={{ fontFamily: L.sans, fontSize: 17, color: L.slate, lineHeight: 1.95, margin: "0 0 52px", fontWeight: 300, letterSpacing: "0.02em" }}>
-              For 25 years he has applied that perspective across two of America's most distinct markets — the greater Chicago area, where he's closed 149+ sales in Park Ridge alone, and Florida's Gulf Coast. Whether it's a luxury sale, a first home, or a Midwest-to-Sunbelt relocation, you get Craig's direct line — no hand-offs, no assistants.
-            </p>
+            {aboutContent.paragraphs.map((para, i) => {
+              const isLast = i === aboutContent.paragraphs.length - 1;
+              return (
+                <p key={i} style={{ fontFamily: L.sans, fontSize: 17, color: L.slate, lineHeight: 1.95, margin: isLast ? "0 0 52px" : "0 0 24px", fontWeight: 300, letterSpacing: "0.02em" }}>
+                  {para}
+                </p>
+              );
+            })}
 
             {/* Clean stats row */}
             <div style={{ display: "flex", gap: 52, flexWrap: "wrap", marginBottom: 48 }}>
@@ -650,10 +666,7 @@ function About() {
 
             {/* Credentials & Recognition */}
             <div style={{ borderTop: `1px solid ${L.border}`, paddingTop: 36, display: "flex", gap: 64, flexWrap: "wrap" }}>
-              {[
-                { label: "Designations", value: "CRS  ·  CNE  ·  Luxury Properties Specialist" },
-                { label: "Recognition",  value: "Rolex Award  ·  5× Centurion  ·  Multi-Year Masters Club" },
-              ].map((item, i) => (
+              {aboutContent.credentials.map((item, i) => (
                 <div key={i} style={{ minWidth: 220 }}>
                   <p style={{ fontFamily: L.sans, fontSize: 10, color: L.slateLight, margin: "0 0 10px", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 700 }}>{item.label}</p>
                   <p style={{ fontFamily: L.sans, fontSize: 13, color: L.charcoal, margin: 0, fontWeight: 400, lineHeight: 1.7, letterSpacing: "0.02em" }}>{item.value}</p>
@@ -672,8 +685,8 @@ function About() {
               boxShadow: "0 28px 72px rgba(0,0,0,0.13)",
             }}>
               <img
-                src={craigPhoto}
-                alt="Craig Tinder"
+                src={CRAIG_PHOTO}
+                alt={aboutContent.authorName}
                 style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }}
               />
               <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: L.gold }} />
@@ -766,11 +779,11 @@ function Neighborhoods({ theme, activeTheme, onOpenGuide }) {
     <section id="neighborhoods" className="lux-section" style={{ padding: "120px 80px", background: L.cream }}>
       <div style={{ maxWidth: 1400, margin: "0 auto" }}>
         <div ref={headRef} className="lux-fade" style={{ textAlign: "center", marginBottom: 72 }}>
-          <Eyebrow>Local Expertise</Eyebrow>
-          <SectionHeading center>Neighborhood Guides</SectionHeading>
+          <Eyebrow>{sectionsContent.neighborhoods.eyebrow}</Eyebrow>
+          <SectionHeading center>{sectionsContent.neighborhoods.heading}</SectionHeading>
           <GoldRule center />
           <p style={{ fontFamily: L.sans, fontSize: 16, color: L.slate, maxWidth: 500, margin: "0 auto", lineHeight: 1.85, fontWeight: 300 }}>
-            Explore the communities Craig knows best in the {theme.name} area.
+            {fillTemplate(sectionsContent.neighborhoods.intro, "area", theme.name)}
           </p>
         </div>
         <div className="lux-card-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 3 }}>
@@ -908,8 +921,8 @@ function Testimonials() {
 
       {/* Header */}
       <div ref={headRef} className="lux-fade" style={{ textAlign: "center", marginBottom: 64, padding: "0 80px" }}>
-        <Eyebrow>Client Stories</Eyebrow>
-        <SectionHeading center>What Clients Say</SectionHeading>
+        <Eyebrow>{sectionsContent.testimonials.eyebrow}</Eyebrow>
+        <SectionHeading center>{sectionsContent.testimonials.heading}</SectionHeading>
         <GoldRule center />
       </div>
 
@@ -1113,11 +1126,11 @@ function Blog({ activeTheme, onOpenPost }) {
     <section id="blog" className="lux-section" style={{ padding: "120px 80px", background: L.cream, overflow: "hidden" }}>
       <div style={{ maxWidth: 1400, margin: "0 auto" }}>
         <div ref={headRef} className="lux-fade" style={{ textAlign: "center", marginBottom: 72 }}>
-          <Eyebrow>Intelligence</Eyebrow>
-          <SectionHeading center>Market Insights</SectionHeading>
+          <Eyebrow>{sectionsContent.blog.eyebrow}</Eyebrow>
+          <SectionHeading center>{sectionsContent.blog.heading}</SectionHeading>
           <GoldRule center />
           <p style={{ fontFamily: L.sans, fontSize: 16, color: L.slate, maxWidth: 460, margin: "0 auto", lineHeight: 1.85, fontWeight: 300 }}>
-            Craig's latest market analysis and local intelligence.
+            {sectionsContent.blog.intro}
           </p>
         </div>
 
@@ -1371,7 +1384,7 @@ function BlogPost({ post, activeTheme, onBack, onOpenPost }) {
           color: "#fff",
         }}>
           <Eyebrow light>
-            {(activeTheme || post.market) === "florida" ? "Gulf Coast Intelligence" : "Chicago Intelligence"}
+            {(activeTheme || post.market) === "florida" ? THEMES.florida.articleEyebrow : THEMES.chicago.articleEyebrow}
           </Eyebrow>
           <h1 style={{
             fontFamily: L.serif,
@@ -1437,14 +1450,14 @@ function BlogPost({ post, activeTheme, onBack, onOpenPost }) {
           flexWrap: "wrap",
         }}>
           <img
-            src={craigPhoto}
-            alt="Craig Tinder"
+            src={CRAIG_PHOTO}
+            alt={aboutContent.authorName}
             style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
           />
           <div style={{ flex: "1 1 240px" }}>
-            <p style={{ fontFamily: L.serif, fontSize: 18, color: L.charcoal, margin: "0 0 4px", fontWeight: 500 }}>Craig Tinder</p>
+            <p style={{ fontFamily: L.serif, fontSize: 18, color: L.charcoal, margin: "0 0 4px", fontWeight: 500 }}>{aboutContent.authorName}</p>
             <p style={{ fontFamily: L.sans, fontSize: 13, color: L.slate, margin: 0, lineHeight: 1.6, fontWeight: 300 }}>
-              Twenty-five years guiding clients across the greater Chicago area and Florida's Gulf Coast. Former therapist and college lecturer — now a Park Ridge–based broker with $245M+ in career sales.
+              {aboutContent.authorBio}
             </p>
           </div>
           <a href="#contact" onClick={onBack} style={{
@@ -1460,7 +1473,7 @@ function BlogPost({ post, activeTheme, onBack, onOpenPost }) {
             transition: "all 0.25s ease",
           }}
           className="lux-btn-dark"
-          >Work With Craig</a>
+          >{aboutContent.authorCtaLabel}</a>
         </div>
       </div>
 
@@ -1469,8 +1482,8 @@ function BlogPost({ post, activeTheme, onBack, onOpenPost }) {
         <section style={{ background: L.cream, padding: "88px 32px 120px", marginTop: 96 }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 48 }}>
-              <Eyebrow>Keep Reading</Eyebrow>
-              <SectionHeading center>More Articles</SectionHeading>
+              <Eyebrow>{sectionsContent.blog.moreEyebrow}</Eyebrow>
+              <SectionHeading center>{sectionsContent.blog.moreHeading}</SectionHeading>
               <GoldRule center />
             </div>
             <div className="lux-card-grid" style={{
@@ -1534,7 +1547,7 @@ function NeighborhoodGuide({ guide, activeTheme, onBack, onOpenGuide }) {
           padding: "0 80px 88px",
           color: "#fff",
         }}>
-          <Eyebrow light>Neighborhood Guide</Eyebrow>
+          <Eyebrow light>{sectionsContent.neighborhoods.guideEyebrow}</Eyebrow>
           <h1 style={{
             fontFamily: L.serif,
             fontSize: "clamp(34px, 4.4vw, 60px)",
@@ -1588,14 +1601,14 @@ function NeighborhoodGuide({ guide, activeTheme, onBack, onOpenGuide }) {
           flexWrap: "wrap",
         }}>
           <img
-            src={craigPhoto}
-            alt="Craig Tinder"
+            src={CRAIG_PHOTO}
+            alt={aboutContent.authorName}
             style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
           />
           <div style={{ flex: "1 1 240px" }}>
-            <p style={{ fontFamily: L.serif, fontSize: 18, color: L.charcoal, margin: "0 0 4px", fontWeight: 500 }}>Craig Tinder</p>
+            <p style={{ fontFamily: L.serif, fontSize: 18, color: L.charcoal, margin: "0 0 4px", fontWeight: 500 }}>{aboutContent.authorName}</p>
             <p style={{ fontFamily: L.sans, fontSize: 13, color: L.slate, margin: 0, lineHeight: 1.6, fontWeight: 300 }}>
-              Twenty-five years guiding clients across the greater Chicago area and Florida's Gulf Coast. Former therapist and college lecturer — now a Park Ridge–based broker with $245M+ in career sales.
+              {aboutContent.authorBio}
             </p>
           </div>
           <a href="#contact" onClick={onBack} style={{
@@ -1611,7 +1624,7 @@ function NeighborhoodGuide({ guide, activeTheme, onBack, onOpenGuide }) {
             transition: "all 0.25s ease",
           }}
           className="lux-btn-dark"
-          >Work With Craig</a>
+          >{aboutContent.authorCtaLabel}</a>
         </div>
       </div>
 
@@ -1620,8 +1633,8 @@ function NeighborhoodGuide({ guide, activeTheme, onBack, onOpenGuide }) {
         <section style={{ background: L.cream, padding: "88px 32px 120px", marginTop: 96 }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 48 }}>
-              <Eyebrow>Keep Exploring</Eyebrow>
-              <SectionHeading center>More Neighborhoods</SectionHeading>
+              <Eyebrow>{sectionsContent.neighborhoods.moreEyebrow}</Eyebrow>
+              <SectionHeading center>{sectionsContent.neighborhoods.moreHeading}</SectionHeading>
               <GoldRule center />
             </div>
             <div className="lux-card-grid" style={{
@@ -1641,10 +1654,11 @@ function NeighborhoodGuide({ guide, activeTheme, onBack, onOpenGuide }) {
 }
 
 // ─── VALUATION ───────────────────────────────────────────────────────────────
-function Valuation({ theme, activeTheme }) {
+function Valuation({ theme }) {
   const [fields, setFields] = useState({ address: "", name: "", email: "", phone: "" });
   const [status, setStatus] = useState("idle");
   const ref = useFadeIn(0);
+  const copy = sectionsContent.valuation;
 
   const inputStyle = {
     width: "100%",
@@ -1664,7 +1678,7 @@ function Valuation({ theme, activeTheme }) {
     e.preventDefault();
     setStatus("submitting");
     try {
-      const res = await fetch(FORMSPREE.valuation[activeTheme], {
+      const res = await fetch(theme.valuationForm, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ subject: `Home Valuation Request — ${fields.address}`, ...fields }),
@@ -1691,7 +1705,7 @@ function Valuation({ theme, activeTheme }) {
               fontWeight: 400,
               lineHeight: 1.15,
               letterSpacing: "-0.01em",
-            }}>What Is Your Home Worth?</h2>
+            }}>{copy.heading}</h2>
             <div style={{ width: 48, height: 1, background: L.gold, margin: "28px 0" }} />
             <p style={{
               fontFamily: L.sans,
@@ -1702,7 +1716,7 @@ function Valuation({ theme, activeTheme }) {
               fontWeight: 300,
               letterSpacing: "0.02em",
             }}>
-              Receive a complimentary, no-obligation market analysis of your property. Craig reviews every request personally and responds within 24 hours.
+              {copy.intro}
             </p>
           </div>
 
@@ -1710,10 +1724,10 @@ function Valuation({ theme, activeTheme }) {
           <div>
             {status === "success" ? (
               <div style={{ padding: "52px 44px", border: "1px solid rgba(212,175,55,0.3)", textAlign: "center" }}>
-                <p style={{ fontFamily: L.serif, fontSize: 28, color: "#fff", margin: "0 0 12px", fontWeight: 400 }}>Request Received</p>
+                <p style={{ fontFamily: L.serif, fontSize: 28, color: "#fff", margin: "0 0 12px", fontWeight: 400 }}>{copy.successHeading}</p>
                 <div style={{ width: 32, height: 1, background: L.gold, margin: "0 auto 20px" }} />
                 <p style={{ fontFamily: L.sans, fontSize: 14, color: "rgba(255,255,255,0.6)", margin: 0, fontWeight: 300, lineHeight: 1.85 }}>
-                  Craig will reach out within 24 hours with your personalized market analysis.
+                  {copy.successBody}
                 </p>
               </div>
             ) : (
@@ -1764,7 +1778,7 @@ function Valuation({ theme, activeTheme }) {
                     transition: "all 0.28s ease",
                   }}
                 >
-                  {status === "submitting" ? "Sending..." : "Request My Free Valuation"}
+                  {status === "submitting" ? "Sending..." : copy.button}
                 </button>
               </form>
             )}
@@ -1776,9 +1790,10 @@ function Valuation({ theme, activeTheme }) {
 }
 
 // ─── CONTACT ─────────────────────────────────────────────────────────────────
-function Contact({ theme, activeTheme }) {
+function Contact({ theme }) {
   const ref = useFadeIn(0);
-  const [fields, setFields] = useState({ name: "", email: "", phone: "", intent: "How can Craig help?", message: "" });
+  const copy = sectionsContent.contact;
+  const [fields, setFields] = useState({ name: "", email: "", phone: "", intent: copy.intentPlaceholder, message: "" });
   const [status, setStatus] = useState("idle");
 
   const inputStyle = {
@@ -1799,7 +1814,7 @@ function Contact({ theme, activeTheme }) {
     e.preventDefault();
     setStatus("submitting");
     try {
-      const res = await fetch(FORMSPREE.contact[activeTheme], {
+      const res = await fetch(theme.contactForm, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
@@ -1809,7 +1824,7 @@ function Contact({ theme, activeTheme }) {
       });
       if (res.ok) {
         setStatus("success");
-        setFields({ name: "", email: "", phone: "", intent: "How can Craig help?", message: "" });
+        setFields({ name: "", email: "", phone: "", intent: copy.intentPlaceholder, message: "" });
       } else {
         setStatus("error");
       }
@@ -1824,18 +1839,18 @@ function Contact({ theme, activeTheme }) {
         <div ref={ref} className="lux-fade lux-split" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 88, alignItems: "start" }}>
           {/* Contact info */}
           <div>
-            <Eyebrow>Get in Touch</Eyebrow>
-            <SectionHeading>Start the Conversation</SectionHeading>
+            <Eyebrow>{copy.eyebrow}</Eyebrow>
+            <SectionHeading>{copy.heading}</SectionHeading>
             <GoldRule />
             <p style={{ fontFamily: L.sans, fontSize: 16, color: L.slate, lineHeight: 1.9, margin: "0 0 52px", fontWeight: 300, letterSpacing: "0.02em" }}>
-              Craig responds personally to every inquiry. Whether you're buying, selling, or simply exploring — no pressure, just guidance.
+              {copy.intro}
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
               {[
-                { label: "Phone",  value: "(847) 638-5522" },
+                { label: "Phone",  value: theme.phone },
                 { label: "Email",  value: theme.email },
                 { label: "Office", value: theme.location },
-              ].map((item, i) => (
+              ].filter(item => item.value).map((item, i) => (
                 <div key={i}>
                   <p style={{ fontFamily: L.sans, fontSize: 10, color: L.slateLight, margin: "0 0 5px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" }}>{item.label}</p>
                   <p style={{ fontFamily: L.sans, fontSize: 16, color: L.charcoal, margin: 0, fontWeight: 400 }}>{item.value}</p>
@@ -1873,10 +1888,10 @@ function Contact({ theme, activeTheme }) {
           <div>
             {status === "success" ? (
               <div style={{ padding: "52px 44px", border: `1px solid ${L.border}`, textAlign: "center", background: L.cream }}>
-                <p style={{ fontFamily: L.serif, fontSize: 28, color: L.charcoal, margin: "0 0 12px", fontWeight: 400 }}>Message Sent</p>
+                <p style={{ fontFamily: L.serif, fontSize: 28, color: L.charcoal, margin: "0 0 12px", fontWeight: 400 }}>{copy.successHeading}</p>
                 <div style={{ width: 32, height: 1, background: L.gold, margin: "0 auto 20px" }} />
                 <p style={{ fontFamily: L.sans, fontSize: 14, color: L.slate, margin: 0, fontWeight: 300, lineHeight: 1.85 }}>
-                  Craig will be in touch shortly. You can also reach him directly at {theme.email}.
+                  {fillTemplate(copy.successBody, "email", theme.email)}
                 </p>
               </div>
             ) : (
@@ -1899,16 +1914,15 @@ function Contact({ theme, activeTheme }) {
                 <select
                   value={fields.intent}
                   onChange={e => setFields(f => ({ ...f, intent: e.target.value }))}
-                  style={{ ...inputStyle, color: fields.intent === "How can Craig help?" ? L.slate : L.charcoal, appearance: "none", cursor: "pointer" }}
+                  style={{ ...inputStyle, color: fields.intent === copy.intentPlaceholder ? L.slate : L.charcoal, appearance: "none", cursor: "pointer" }}
                 >
-                  <option>How can Craig help?</option>
-                  <option>Buy a home</option>
-                  <option>Sell my home</option>
-                  <option>Get a home valuation</option>
-                  <option>Just exploring</option>
+                  <option>{copy.intentPlaceholder}</option>
+                  {copy.intentOptions.map((opt, i) => (
+                    <option key={i}>{opt}</option>
+                  ))}
                 </select>
                 <textarea
-                  placeholder="Tell me about your real estate goals..."
+                  placeholder={copy.messagePlaceholder}
                   rows={5}
                   value={fields.message}
                   onChange={e => setFields(f => ({ ...f, message: e.target.value }))}
@@ -1957,7 +1971,7 @@ function Footer({ theme }) {
       <div className="lux-footer-grid" style={{ maxWidth: 1400, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 48 }}>
         {/* Brand */}
         <div>
-          <p style={{ fontFamily: L.serif, fontSize: 22, color: "#fff", margin: "0 0 6px", fontWeight: 400, letterSpacing: "0.03em" }}>Craig Tinder</p>
+          <p style={{ fontFamily: L.serif, fontSize: 22, color: "#fff", margin: "0 0 6px", fontWeight: 400, letterSpacing: "0.03em" }}>{contactContent.footerName}</p>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
             <BrokerageLogo theme={theme} width={theme.logoAspect === "wide" ? 108 : 100} onDark />
             <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
@@ -1965,7 +1979,7 @@ function Footer({ theme }) {
           </div>
           <div style={{ width: 32, height: 1, background: "rgba(212,175,55,0.4)", margin: "0 0 20px" }} />
           <p style={{ fontFamily: L.sans, fontSize: 12, color: "rgba(255,255,255,0.28)", margin: 0, fontWeight: 300, letterSpacing: "0.04em" }}>
-            © 2026 Craig Tinder Real Estate. All rights reserved.
+            {contactContent.copyright}
           </p>
         </div>
 
@@ -2051,8 +2065,8 @@ function Landing({ onSelect }) {
         {/* Split panels — fill full viewport height */}
         <div style={{ display: "flex", height: "100%" }}>
           {[
-            { key: "chicago", label: "Chicago Suburbs",  sub: "Greater Chicago Area", image: THEMES.chicago.heroImage },
-            { key: "florida", label: "Gulf Coast Florida", sub: "Clearwater Area, FL",  image: THEMES.florida.heroImage },
+            { key: "chicago", label: THEMES.chicago.landingLabel, sub: THEMES.chicago.landingSub, image: THEMES.chicago.heroImage },
+            { key: "florida", label: THEMES.florida.landingLabel, sub: THEMES.florida.landingSub, image: THEMES.florida.heroImage },
           ].map(({ key, label, sub, image }, idx) => {
             const isSelected    = selected === key;
             const otherSelected = selected !== null && !isSelected;
@@ -2165,7 +2179,7 @@ function Landing({ onSelect }) {
           <p style={{
             fontFamily: L.sans, fontSize: 9, color: "rgba(255,255,255,0.2)",
             letterSpacing: "0.2em", textTransform: "uppercase", margin: 0, fontWeight: 600,
-          }}>Select a Market</p>
+          }}>{marketsContent.selectPrompt}</p>
         </div>
 
       </div>
@@ -2320,8 +2334,8 @@ export default function CraigTinderRealEstate() {
             <Neighborhoods theme={theme} activeTheme={activeTheme} onOpenGuide={openGuide} />
             <Testimonials />
             <Blog activeTheme={activeTheme} onOpenPost={openPost} />
-            <Valuation theme={theme} activeTheme={activeTheme} />
-            <Contact theme={theme} activeTheme={activeTheme} />
+            <Valuation theme={theme} />
+            <Contact theme={theme} />
           </>
         )}
         <Footer theme={theme} />

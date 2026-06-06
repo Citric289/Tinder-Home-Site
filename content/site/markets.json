@@ -1,0 +1,39 @@
+{
+  "selectPrompt": "Select a Market",
+  "chicago": {
+    "name": "Chicago",
+    "brokerage": "@properties",
+    "location": "Greater Chicago Area",
+    "email": "craigtinder@atproperties.com",
+    "phone": "(847) 638-5522",
+    "taglineL1": "Your Guide to the",
+    "taglineL2": "Greater Chicago Area",
+    "heroSubtitle": "Over two decades helping families buy, sell, and invest with the personal touch that makes all the difference.",
+    "heroImage": "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&q=80",
+    "landingLabel": "Chicago Suburbs",
+    "landingSub": "Greater Chicago Area",
+    "articleEyebrow": "Chicago Intelligence",
+    "logo": "",
+    "logoShape": "wide",
+    "valuationForm": "https://formspree.io/f/xvzvyljl",
+    "contactForm": "https://formspree.io/f/mrevzbwp"
+  },
+  "florida": {
+    "name": "Florida",
+    "brokerage": "Blake Real Estate",
+    "location": "Clearwater Area, FL",
+    "email": "craig.tinder@blakerealestate.com",
+    "phone": "(847) 638-5522",
+    "taglineL1": "Gulf Coast Living",
+    "taglineL2": "Clearwater & Beyond",
+    "heroSubtitle": "Over two decades helping families buy, sell, and invest with the personal touch that makes all the difference.",
+    "heroImage": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80",
+    "landingLabel": "Gulf Coast Florida",
+    "landingSub": "Clearwater Area, FL",
+    "articleEyebrow": "Gulf Coast Intelligence",
+    "logo": "",
+    "logoShape": "square",
+    "valuationForm": "https://formspree.io/f/xzdkwwpe",
+    "contactForm": "https://formspree.io/f/xojzavoa"
+  }
+}

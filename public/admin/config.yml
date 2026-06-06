@@ -147,16 +147,18 @@ collections:
         widget: markdown
         hint: "The full write-up. Use Heading 2 for section titles."
 
-  # ─── Homepage Numbers ─────────────────────────────────────────────────────
-  # A single settings file (not a list of pages). Lets Craig update the sales
-  # stats shown in the hero banner and About section without a developer.
+  # ─── Site Settings ────────────────────────────────────────────────────────
+  # Settings files (not lists of pages). Each one is a single editor screen that
+  # lets Craig change copy, contact details, and per-market info without a
+  # developer. Each file maps to a JSON file under content/site/.
   - name: site
-    label: "Homepage Numbers"
-    description: "The sales and achievement numbers shown on the homepage."
+    label: "Site Settings"
+    description: "Editable text, numbers, contact details, and per-market info across the site."
     delete: false
     editor:
       preview: false
     files:
+      # ── Homepage Numbers ──────────────────────────────────────────────────
       - name: stats
         label: "Homepage Numbers"
         file: "content/site/stats.json"
@@ -182,3 +184,180 @@ collections:
             fields:
               - { name: value, label: "Number", widget: string, hint: 'e.g. "385+".' }
               - { name: label, label: "Caption", widget: string, hint: 'e.g. "Closed Transactions".' }
+
+      # ── Markets (Chicago & Florida) ───────────────────────────────────────
+      - name: markets
+        label: "Markets (Chicago & Florida)"
+        file: "content/site/markets.json"
+        description: "Per-market details — taglines, hero photo, brokerage, email, phone, and the form each market submits to."
+        fields:
+          - { name: selectPrompt, label: "Landing page prompt", widget: string, hint: 'The small text on the two-panel opening screen, e.g. "Select a Market".' }
+          - name: chicago
+            label: "Chicago Market"
+            widget: object
+            collapsed: true
+            fields:
+              - { name: name, label: "Market name", widget: string, hint: 'Short label used in a few sentences, e.g. "Chicago".' }
+              - { name: brokerage, label: "Brokerage name", widget: string, hint: 'e.g. "@properties". Shown as alt text for the logo.' }
+              - { name: location, label: "Location / office", widget: string, hint: 'e.g. "Greater Chicago Area". Shown in the hero, contact, and footer.' }
+              - { name: email, label: "Email address", widget: string }
+              - { name: phone, label: "Phone number", widget: string, required: false, hint: "Shown in the Contact section. Leave blank to hide the phone row." }
+              - { name: taglineL1, label: "Hero headline — line 1", widget: string }
+              - { name: taglineL2, label: "Hero headline — line 2", widget: string }
+              - { name: heroSubtitle, label: "Hero subtitle", widget: text, hint: "The sentence under the big hero headline." }
+              - { name: heroImage, label: "Hero / landing photo", widget: image, hint: "The full-screen background photo for this market (also used on the opening split screen)." }
+              - { name: landingLabel, label: "Opening-screen title", widget: string, hint: 'The big title on this market’s panel of the opening screen, e.g. "Chicago Suburbs".' }
+              - { name: landingSub, label: "Opening-screen subtitle", widget: string, hint: 'The small caption above that title, e.g. "Greater Chicago Area".' }
+              - { name: articleEyebrow, label: "Article eyebrow", widget: string, hint: 'Small label above blog-post titles in this market, e.g. "Chicago Intelligence".' }
+              - { name: logo, label: "Brokerage logo (optional)", widget: image, required: false, hint: "Leave blank to keep the built-in logo. Upload to override it." }
+              - name: logoShape
+                label: "Logo shape"
+                widget: select
+                options:
+                  - { label: "Wide (horizontal)", value: wide }
+                  - { label: "Square", value: square }
+                default: wide
+                hint: "Controls how the logo is sized in the footer."
+              - { name: valuationForm, label: "Valuation form URL", widget: string, hint: "Formspree endpoint the home-valuation form submits to." }
+              - { name: contactForm, label: "Contact form URL", widget: string, hint: "Formspree endpoint the contact form submits to." }
+          - name: florida
+            label: "Florida Market"
+            widget: object
+            collapsed: true
+            fields:
+              - { name: name, label: "Market name", widget: string, hint: 'Short label used in a few sentences, e.g. "Florida".' }
+              - { name: brokerage, label: "Brokerage name", widget: string, hint: 'e.g. "Blake Real Estate". Shown as alt text for the logo.' }
+              - { name: location, label: "Location / office", widget: string, hint: 'e.g. "Clearwater Area, FL". Shown in the hero, contact, and footer.' }
+              - { name: email, label: "Email address", widget: string }
+              - { name: phone, label: "Phone number", widget: string, required: false, hint: "Shown in the Contact section. Leave blank to hide the phone row." }
+              - { name: taglineL1, label: "Hero headline — line 1", widget: string }
+              - { name: taglineL2, label: "Hero headline — line 2", widget: string }
+              - { name: heroSubtitle, label: "Hero subtitle", widget: text, hint: "The sentence under the big hero headline." }
+              - { name: heroImage, label: "Hero / landing photo", widget: image, hint: "The full-screen background photo for this market (also used on the opening split screen)." }
+              - { name: landingLabel, label: "Opening-screen title", widget: string, hint: 'The big title on this market’s panel of the opening screen, e.g. "Gulf Coast Florida".' }
+              - { name: landingSub, label: "Opening-screen subtitle", widget: string, hint: 'The small caption above that title, e.g. "Clearwater Area, FL".' }
+              - { name: articleEyebrow, label: "Article eyebrow", widget: string, hint: 'Small label above blog-post titles in this market, e.g. "Gulf Coast Intelligence".' }
+              - { name: logo, label: "Brokerage logo (optional)", widget: image, required: false, hint: "Leave blank to keep the built-in logo. Upload to override it." }
+              - name: logoShape
+                label: "Logo shape"
+                widget: select
+                options:
+                  - { label: "Wide (horizontal)", value: wide }
+                  - { label: "Square", value: square }
+                default: square
+                hint: "Controls how the logo is sized in the footer."
+              - { name: valuationForm, label: "Valuation form URL", widget: string, hint: "Formspree endpoint the home-valuation form submits to." }
+              - { name: contactForm, label: "Contact form URL", widget: string, hint: "Formspree endpoint the contact form submits to." }
+
+      # ── About Section ─────────────────────────────────────────────────────
+      - name: about
+        label: "About Craig"
+        file: "content/site/about.json"
+        description: "The 'About Craig' section, plus Craig's photo and the author bio shown at the bottom of every article and guide."
+        fields:
+          - { name: eyebrow, label: "Eyebrow", widget: string, hint: 'Small label above the heading, e.g. "About Craig".' }
+          - { name: heading, label: "Heading", widget: string, hint: 'e.g. "A Different Kind of Agent".' }
+          - { name: photo, label: "Craig's photo (optional)", widget: image, required: false, hint: "Leave blank to keep the built-in headshot. Used in the About section and article author bios." }
+          - name: paragraphs
+            label: "Bio paragraphs"
+            label_singular: "Paragraph"
+            widget: list
+            field: { name: paragraph, label: "Paragraph", widget: text }
+            hint: "One or more paragraphs of bio copy."
+          - name: credentials
+            label: "Credentials & recognition"
+            label_singular: "Item"
+            widget: list
+            summary: "{{fields.label}}: {{fields.value}}"
+            hint: "The two lists at the bottom of the About section."
+            fields:
+              - { name: label, label: "Label", widget: string, hint: 'e.g. "Designations" or "Recognition".' }
+              - { name: value, label: "Value", widget: string, hint: 'e.g. "CRS  ·  CNE  ·  Luxury Properties Specialist".' }
+          - { name: authorName, label: "Author name", widget: string, hint: "Shown in the author bio at the bottom of every article and guide." }
+          - { name: authorBio, label: "Author bio", widget: text, hint: "Short bio paragraph in the author block under each article and guide." }
+          - { name: authorCtaLabel, label: "Author button label", widget: string, hint: 'The button in the author block, e.g. "Work With Craig".' }
+
+      # ── Section Headings & Copy ───────────────────────────────────────────
+      - name: sections
+        label: "Section Headings & Copy"
+        file: "content/site/sections.json"
+        description: "The titles and intro text for each section of the homepage, plus the valuation and contact form copy."
+        fields:
+          - name: hero
+            label: "Hero"
+            widget: object
+            fields:
+              - { name: contactButton, label: "Hero button label", widget: string, hint: 'The button on the opening hero, e.g. "Contact Craig".' }
+          - name: neighborhoods
+            label: "Neighborhoods section"
+            widget: object
+            collapsed: true
+            fields:
+              - { name: eyebrow, label: "Eyebrow", widget: string }
+              - { name: heading, label: "Heading", widget: string }
+              - { name: intro, label: "Intro sentence", widget: text, hint: 'Use {area} where the market name should appear, e.g. "...in the {area} area."' }
+              - { name: guideEyebrow, label: "Guide page eyebrow", widget: string, hint: "Small label at the top of each full guide page." }
+              - { name: moreEyebrow, label: '"More" eyebrow', widget: string, hint: "Above the related-guides grid at the bottom of a guide." }
+              - { name: moreHeading, label: '"More" heading', widget: string }
+          - name: testimonials
+            label: "Testimonials section"
+            widget: object
+            collapsed: true
+            fields:
+              - { name: eyebrow, label: "Eyebrow", widget: string }
+              - { name: heading, label: "Heading", widget: string }
+          - name: blog
+            label: "Blog section"
+            widget: object
+            collapsed: true
+            fields:
+              - { name: eyebrow, label: "Eyebrow", widget: string }
+              - { name: heading, label: "Heading", widget: string }
+              - { name: intro, label: "Intro sentence", widget: text }
+              - { name: moreEyebrow, label: '"More" eyebrow', widget: string, hint: "Above the related-articles grid at the bottom of a post." }
+              - { name: moreHeading, label: '"More" heading', widget: string }
+          - name: valuation
+            label: "Home Valuation section"
+            widget: object
+            collapsed: true
+            fields:
+              - { name: heading, label: "Heading", widget: string }
+              - { name: intro, label: "Intro paragraph", widget: text }
+              - { name: button, label: "Button label", widget: string }
+              - { name: successHeading, label: "After-submit heading", widget: string, hint: "Shown once the form is sent." }
+              - { name: successBody, label: "After-submit message", widget: text }
+          - name: contact
+            label: "Contact section"
+            widget: object
+            collapsed: true
+            fields:
+              - { name: eyebrow, label: "Eyebrow", widget: string }
+              - { name: heading, label: "Heading", widget: string }
+              - { name: intro, label: "Intro paragraph", widget: text }
+              - { name: messagePlaceholder, label: "Message box placeholder", widget: string }
+              - { name: successHeading, label: "After-submit heading", widget: string }
+              - { name: successBody, label: "After-submit message", widget: text, hint: "Use {email} where Craig's email address should appear." }
+              - { name: intentPlaceholder, label: "Dropdown placeholder", widget: string, hint: 'The first, unselected option, e.g. "How can Craig help?".' }
+              - name: intentOptions
+                label: "Dropdown choices"
+                label_singular: "Choice"
+                widget: list
+                field: { name: option, label: "Choice", widget: string }
+                hint: "The selectable options in the 'How can Craig help?' dropdown."
+
+      # ── Contact Details, Social & Footer ──────────────────────────────────
+      - name: contact
+        label: "Social Links & Footer"
+        file: "content/site/contact.json"
+        description: "Social media links (used in the contact section and footer) and the footer brand name and copyright."
+        fields:
+          - { name: footerName, label: "Footer name", widget: string, hint: 'The brand name in the footer, e.g. "Craig Tinder".' }
+          - { name: copyright, label: "Copyright line", widget: string }
+          - name: social
+            label: "Social links"
+            widget: object
+            hint: "Leave any field blank to hide that icon."
+            fields:
+              - { name: linkedin, label: "LinkedIn URL", widget: string, required: false }
+              - { name: instagram, label: "Instagram URL", widget: string, required: false }
+              - { name: facebook, label: "Facebook URL", widget: string, required: false }
