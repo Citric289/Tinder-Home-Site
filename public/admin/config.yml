@@ -209,7 +209,7 @@ collections:
               - { name: landingLabel, label: "Opening-screen title", widget: string, hint: 'The big title on this market’s panel of the opening screen, e.g. "Chicago Suburbs".' }
               - { name: landingSub, label: "Opening-screen subtitle", widget: string, hint: 'The small caption above that title, e.g. "Greater Chicago Area".' }
               - { name: articleEyebrow, label: "Article eyebrow", widget: string, hint: 'Small label above blog-post titles in this market, e.g. "Chicago Intelligence".' }
-              - { name: logo, label: "Brokerage logo (optional)", widget: image, required: false, hint: "Leave blank to keep the built-in logo. Upload to override it." }
+              - { name: logo, label: "Brokerage logo", widget: image, required: false, hint: "The brokerage logo shown in the footer (Blake / @properties). Click it to upload a replacement — a transparent PNG looks best." }
               - name: logoShape
                 label: "Logo shape"
                 widget: select
@@ -237,7 +237,7 @@ collections:
               - { name: landingLabel, label: "Opening-screen title", widget: string, hint: 'The big title on this market’s panel of the opening screen, e.g. "Gulf Coast Florida".' }
               - { name: landingSub, label: "Opening-screen subtitle", widget: string, hint: 'The small caption above that title, e.g. "Clearwater Area, FL".' }
               - { name: articleEyebrow, label: "Article eyebrow", widget: string, hint: 'Small label above blog-post titles in this market, e.g. "Gulf Coast Intelligence".' }
-              - { name: logo, label: "Brokerage logo (optional)", widget: image, required: false, hint: "Leave blank to keep the built-in logo. Upload to override it." }
+              - { name: logo, label: "Brokerage logo", widget: image, required: false, hint: "The brokerage logo shown in the footer (Blake / @properties). Click it to upload a replacement — a transparent PNG looks best." }
               - name: logoShape
                 label: "Logo shape"
                 widget: select

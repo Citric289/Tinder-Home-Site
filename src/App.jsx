@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
 import ReactMarkdown from "react-markdown";
-import blakeLogo from "./blake-logo.png";
 import craigLogo from "./Craig Tinder logo.png";
 import craigPhoto from "./craig-tinder-photo.jpg";
 import { POSTS, POSTS_BY_MARKET, getPostBySlug, postInMarket } from "./blog/posts";
@@ -44,16 +43,10 @@ const L = {
 };
 
 // ─── CONTENT DATA ──────────────────────────────────────────────────────────
-// Per-market settings live in content/site/markets.json and are editable in the
-// CMS. Brokerage logos are the one piece kept in code: the Chicago logo is an
-// external @properties CDN URL and the Florida logo is a bundled asset. The CMS
-// can still override either via the optional "logo" image field; when it's left
-// blank we fall back to these defaults.
-const MARKET_LOGO_DEFAULTS = {
-  chicago: "https://resources.atproperties.com/images/ta/atp/20250717160224.at.cirehorizontalfullcolor.450.png",
-  florida: blakeLogo,
-};
-
+// Per-market settings live in content/site/markets.json and are fully editable
+// in the CMS — including the brokerage logo, which is stored there (the Chicago
+// @properties logo as a URL, the Florida Blake logo as an uploaded image) so the
+// current logo is visible in the editor, exactly like the hero photos.
 function buildTheme(key) {
   const m = marketsContent[key] || {};
   return {
@@ -69,7 +62,7 @@ function buildTheme(key) {
     landingLabel: m.landingLabel,
     landingSub: m.landingSub,
     articleEyebrow: m.articleEyebrow,
-    logoUrl: m.logo || MARKET_LOGO_DEFAULTS[key],
+    logoUrl: m.logo,
     logoAspect: m.logoShape || "wide",
     valuationForm: m.valuationForm,
     contactForm: m.contactForm,
@@ -301,6 +294,8 @@ function StarRating({ count }) {
 }
 
 function BrokerageLogo({ theme, width, height, onDark = false }) {
+  // No logo set in the CMS → render nothing rather than a broken image.
+  if (!theme.logoUrl) return null;
   const pad = onDark ? "3px 7px" : 0;
   const imgStyle = height
     ? { height, width: "auto", display: "block" }
@@ -1973,8 +1968,12 @@ function Footer({ theme }) {
         <div>
           <p style={{ fontFamily: L.serif, fontSize: 22, color: "#fff", margin: "0 0 6px", fontWeight: 400, letterSpacing: "0.03em" }}>{contactContent.footerName}</p>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-            <BrokerageLogo theme={theme} width={theme.logoAspect === "wide" ? 108 : 100} onDark />
-            <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
+            {theme.logoUrl && (
+              <>
+                <BrokerageLogo theme={theme} width={theme.logoAspect === "wide" ? 108 : 100} onDark />
+                <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
+              </>
+            )}
             <span style={{ fontFamily: L.sans, fontSize: 12, color: "rgba(255,255,255,0.38)", letterSpacing: "0.06em" }}>{theme.location}</span>
           </div>
           <div style={{ width: 32, height: 1, background: "rgba(212,175,55,0.4)", margin: "0 0 20px" }} />
